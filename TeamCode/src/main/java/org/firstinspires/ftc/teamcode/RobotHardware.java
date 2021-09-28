@@ -100,7 +100,7 @@ public class RobotHardware {
         frontLeft.setPower(-power);
         frontRight.setPower(power);
         backLeft.setPower(-power);
-        backRight.setPower(-power);
+        backRight.setPower(power);
     }
     public void strafeRight(double power){
         frontLeft.setPower(power);
