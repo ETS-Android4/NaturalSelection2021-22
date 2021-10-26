@@ -130,10 +130,7 @@ public class Iterative_Opmode extends OpMode
             frontRight.setPower(rotatedX);
             backLeft.setPower(-rotatedX);
         }else{
-            frontLeft.setPower(0);
-            backRight.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
+            stopDrive();
         }
         if(Math.abs(rotation)> threshold){
             turnLeft(rotation);
@@ -152,6 +149,12 @@ public class Iterative_Opmode extends OpMode
             frontRight.setPower(power);
             backLeft.setPower(power);
             backRight.setPower(power);
+    }
+    private void stopDrive() {
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
     }
 
 

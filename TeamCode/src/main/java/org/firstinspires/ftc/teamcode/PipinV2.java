@@ -69,18 +69,16 @@ public class PipinV2 extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware pipin = new RobotHardware();
-    private ElapsedTime     runtime = new ElapsedTime();
+    private ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
-
-
         pipin.init(hardwareMap);
         waitForStart();
-        while(opModeIsActive()){
+        while(opModeIsActive() && runtime.seconds() < 5){
             pipin.forwardDrive(1);
         }
-        pipin.forwardDrive(0);
+        pipin.stopDrive();
     }
 
 }
