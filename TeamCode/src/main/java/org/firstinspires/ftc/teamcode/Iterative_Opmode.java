@@ -60,6 +60,7 @@ public class Iterative_Opmode extends OpMode
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private DcMotor spin = null;
+    private DcMotor slides = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -76,6 +77,7 @@ public class Iterative_Opmode extends OpMode
         backRight = hardwareMap.get(DcMotor.class, "br");
         backLeft = hardwareMap.get(DcMotor.class, "bl");
         spin = hardwareMap.get(DcMotor.class, "spin");
+        slides = hardwareMap.get(DcMotor.class, "slides");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -83,14 +85,16 @@ public class Iterative_Opmode extends OpMode
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
-        //this may need to be changed
-        spin.setDirection(DcMotorSimple.Direction.REVERSE);
+        spin.setDirection(DcMotorSimple.Direction.FORWARD);
+        slides.setDirection(DcMotorSimple.Direction.FORWARD);
+
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -140,7 +144,13 @@ public class Iterative_Opmode extends OpMode
         }else{
             spin.setPower(0);
         }
-
+        if(gamepad1.dpad_up){
+            slides.setPower(0.5);
+        }else if(gamepad1.dpad_down){
+            slides.setPower(-0.5);
+        }else{
+            slides.setPower(0);
+        }
         // Show the elapsed game time and wheel power.
     }
 
