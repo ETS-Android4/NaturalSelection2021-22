@@ -79,7 +79,6 @@ public class Iterative_Opmode extends OpMode
         spin = hardwareMap.get(DcMotor.class, "spin");
         slides = hardwareMap.get(DcMotor.class, "slides");
 
-        // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
@@ -88,13 +87,17 @@ public class Iterative_Opmode extends OpMode
         spin.setDirection(DcMotorSimple.Direction.FORWARD);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
 
-
+        //set zero behaviors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        //reset slide encoder
+        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -151,6 +154,7 @@ public class Iterative_Opmode extends OpMode
         }else{
             slides.setPower(0);
         }
+        telemetry.addData("Slide Position: ",slides.getCurrentPosition());
         // Show the elapsed game time and wheel power.
     }
 
