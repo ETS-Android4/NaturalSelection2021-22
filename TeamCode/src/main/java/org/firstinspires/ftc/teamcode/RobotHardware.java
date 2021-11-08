@@ -41,7 +41,7 @@ public class RobotHardware {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private DcMotor spin =null;
+    private DcMotor spin = null;
     /* local OpMode members. */
     HardwareMap hardwareMap =  null;
 
@@ -78,21 +78,38 @@ public class RobotHardware {
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+    public void spinerPower(double power){
+        spin.setPower(power);
+    }
+
+    public void rotateLeft(double power,double timeout){
+        ElapsedTime timer = new ElapsedTime();
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(power);
+        backRight.setPower(power);
+        //noinspection StatementWithEmptyBody
+        while(timer.seconds() < timeout){}
+        stopDrive();
     }
+
     public void forwardDrive(double power){
         frontLeft.setPower(-power);
         frontRight.setPower(power);
         backLeft.setPower(-power);
         backRight.setPower(power);
     }
-    public void forwardDrive(double power,int position,int timeout){
+    public void forwardDrive(double power,int position,double timeout){
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
         //reset encoders
@@ -116,8 +133,8 @@ public class RobotHardware {
         backLeft.setPower(power);
         backRight.setPower(power);
         //noinspection StatementWithEmptyBody
-        while((frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy())&&timer.seconds()>timeout){}
-        forwardDrive(0);
+        while((frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy())&&timer.seconds()<timeout){}
+        stopDrive();
     }
     public void strafeRight(double power){
         frontLeft.setPower(-power);
@@ -126,7 +143,7 @@ public class RobotHardware {
         backRight.setPower(power);
     }
 
-    public void strafeRight(double power,int position,int timeout){
+    public void strafeRight(double power,int position,double timeout){
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
         //reset encoders
@@ -150,8 +167,8 @@ public class RobotHardware {
         backLeft.setPower(power);
         backRight.setPower(power);
         //noinspection StatementWithEmptyBody
-        while((frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy())&&timer.seconds()>timeout){}
-        forwardDrive(0);
+        while((frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy())&&timer.seconds()<timeout){}
+        stopDrive();
     }
 
     public void stopDrive(){
