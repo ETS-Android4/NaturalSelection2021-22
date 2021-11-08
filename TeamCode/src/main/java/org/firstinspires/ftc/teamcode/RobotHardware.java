@@ -108,6 +108,30 @@ public class RobotHardware {
         backLeft.setPower(-power);
         backRight.setPower(power);
     }
+    public void forwardDrive(double power,int position){
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(-position);
+        frontRight.setTargetPosition(position);
+        backLeft.setTargetPosition(-position);
+        backRight.setTargetPosition(position);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //set powers
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(power);
+        backRight.setPower(power);
+        while(frontLeft.isBusy()||frontRight.isBusy()||backLeft.isBusy()||backRight.isBusy()){}
+        forwardDrive(0);
+    }
     public void strafeRight(double power){
         frontLeft.setPower(power);
         frontRight.setPower(-power);
