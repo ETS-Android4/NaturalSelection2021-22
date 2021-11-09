@@ -41,18 +41,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * The names of OpModes appear on the menu of the FTC Driver Station.
  * When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
- *
+ * <p>
  * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
  * It includes all the skeletal structure that all iterative OpModes contain.
- *
+ * <p>
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Statio OpMode list
+ * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="🦆🦆🦆🦆🦆🦆🦆🦆🦆TESTING🦆🦆🦆🦆🦆🦆🦆🦆🦆", group="Iterative Opmode")
+@TeleOp(name = "🦆🦆🦆🦆🦆🦆🦆🦆🦆TESTING🦆🦆🦆🦆🦆🦆🦆🦆🦆", group = "Iterative Opmode")
 
-public class Iterative_Opmode extends OpMode
-{
+public class Iterative_Opmode extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeft = null;
@@ -68,11 +67,11 @@ public class Iterative_Opmode extends OpMode
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
-        
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        frontLeft  = hardwareMap.get(DcMotor.class, "fl");
+        frontLeft = hardwareMap.get(DcMotor.class, "fl");
         frontRight = hardwareMap.get(DcMotor.class, "fr");
         backRight = hardwareMap.get(DcMotor.class, "br");
         backLeft = hardwareMap.get(DcMotor.class, "bl");
@@ -132,37 +131,37 @@ public class Iterative_Opmode extends OpMode
     @Override
     public void loop() {
 
-        double stickX =  -gamepad1.left_stick_x;
+        double stickX = -gamepad1.left_stick_x;
         double stickY = gamepad1.left_stick_y;
-        double rotatedX = (stickX * Math.cos(Math.PI/4)) - (stickY * Math.sin(Math.PI/4));
-        double rotatedY = (stickY * Math.cos(Math.PI/4)) + (stickX * Math.sin(Math.PI/4));
+        double rotatedX = (stickX * Math.cos(Math.PI / 4)) - (stickY * Math.sin(Math.PI / 4));
+        double rotatedY = (stickY * Math.cos(Math.PI / 4)) + (stickX * Math.sin(Math.PI / 4));
         double rotation = gamepad1.left_trigger - gamepad1.right_trigger;
 
         double threshold = 0.2;
-        if(Math.sqrt((stickX * stickX)+(stickY * stickY))> threshold) {
+        if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > threshold) {
             frontLeft.setPower(rotatedY);
             backRight.setPower(-rotatedY);
             frontRight.setPower(rotatedX);
             backLeft.setPower(-rotatedX);
-        }else{
+        } else {
             stopDrive();
         }
-        if(Math.abs(rotation)> threshold){
+        if (Math.abs(rotation) > threshold) {
             turnLeft(rotation);
         }
-        if(gamepad1.a){
+        if (gamepad1.a) {
             spin.setPower(1);
-        }else{
+        } else {
             spin.setPower(0);
         }
-        if(gamepad1.dpad_up){
+        if (gamepad1.dpad_up) {
             slides.setPower(0.5);
-        }else if(gamepad1.dpad_down){
+        } else if (gamepad1.dpad_down) {
             slides.setPower(-0.5);
-        }else{
+        } else {
             slides.setPower(0);
         }
-        telemetry.addData("Slide Position: ",slides.getCurrentPosition());
+        telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("FL: ", frontLeft.getCurrentPosition());
         telemetry.addData("FR: ", frontRight.getCurrentPosition());
         telemetry.addData("BL: ", backLeft.getCurrentPosition());
@@ -172,11 +171,12 @@ public class Iterative_Opmode extends OpMode
     }
 
     private void turnLeft(double power) {
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(power);
+        backRight.setPower(power);
     }
+
     private void stopDrive() {
         frontLeft.setPower(0);
         frontRight.setPower(0);
