@@ -40,22 +40,38 @@ public class LayerCake extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
-    private ElapsedTime runtime = new ElapsedTime();
-
+    private String currentStep = "waiting";
     @Override
     public void runOpMode() {
         layerCake.init(hardwareMap);
         waitForStart();
+        Thread telemetryHandler = new Thread(){
+            @Override
+            public void run() {
+                ElapsedTime runtime = new ElapsedTime();
+                while(runtime.seconds() < 30){
+                    telemetry.addData("runtime(ms): ", runtime.milliseconds());
+                    telemetry.addData("Current Task: ", currentStep);
+
+                }
+            }
+        };
+        telemetryHandler.start();
+        currentStep = "Moving away from wall";
         layerCake.forwardDrive(0.25,100,0.2);
+        currentStep = "Moving to carousel";
         layerCake.strafeRight(0.5,-2200,2.5);
+        currentStep = "Delivering Duck";
         layerCake.spinnerPower(1);
         sleep(4000);
         layerCake.spinnerPower(0);
+        currentStep = "Moving away from carousel";
         layerCake.strafeRight(0.5,1000, 1);
+        currentStep = "Going forward";
         layerCake.forwardDrive(0.5,1000, 1);
+        currentStep = "SPINNING";
         layerCake.rotateLeft(1,2);
-
-
+        currentStep = "Waiting for teleop";
     }
 
 }
