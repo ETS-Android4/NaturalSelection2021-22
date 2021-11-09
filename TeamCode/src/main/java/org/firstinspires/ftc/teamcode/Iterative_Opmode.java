@@ -33,7 +33,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -60,7 +63,8 @@ public class Iterative_Opmode extends OpMode {
     private DcMotor backRight = null;
     private DcMotor spin = null;
     private DcMotor slides = null;
-
+    private DcMotor intake = null;
+    private DistanceSensor dist = null;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -77,6 +81,7 @@ public class Iterative_Opmode extends OpMode {
         backLeft = hardwareMap.get(DcMotor.class, "bl");
         spin = hardwareMap.get(DcMotor.class, "spin");
         slides = hardwareMap.get(DcMotor.class, "slides");
+        intake = hardwareMap.get(DcMotor.class, "nom");
 
         // Reverse the motor that runs backwards when connected directly to the battery
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
@@ -85,7 +90,7 @@ public class Iterative_Opmode extends OpMode {
         backRight.setDirection(DcMotor.Direction.FORWARD);
         spin.setDirection(DcMotorSimple.Direction.FORWARD);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
-
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
         //set zero behaviors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -93,6 +98,8 @@ public class Iterative_Opmode extends OpMode {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
 
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -105,7 +112,10 @@ public class Iterative_Opmode extends OpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
+        dist = hardwareMap.get(DistanceSensor.class, "dist");
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -130,7 +140,7 @@ public class Iterative_Opmode extends OpMode {
      */
     @Override
     public void loop() {
-
+        //do stick position things
         double stickX = -gamepad1.left_stick_x;
         double stickY = gamepad1.left_stick_y;
         double rotatedX = (stickX * Math.cos(Math.PI / 4)) - (stickY * Math.sin(Math.PI / 4));
@@ -138,6 +148,7 @@ public class Iterative_Opmode extends OpMode {
         double rotation = gamepad1.left_trigger - gamepad1.right_trigger;
 
         double threshold = 0.2;
+        //do math to it
         if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > threshold) {
             frontLeft.setPower(rotatedY);
             backRight.setPower(-rotatedY);
@@ -146,14 +157,17 @@ public class Iterative_Opmode extends OpMode {
         } else {
             stopDrive();
         }
+        //do spinnnnn
         if (Math.abs(rotation) > threshold) {
             turnLeft(rotation);
         }
+        //ducky thingy
         if (gamepad1.a) {
             spin.setPower(1);
         } else {
             spin.setPower(0);
         }
+        //slides
         if (gamepad1.dpad_up) {
             slides.setPower(0.5);
         } else if (gamepad1.dpad_down) {
@@ -161,11 +175,22 @@ public class Iterative_Opmode extends OpMode {
         } else {
             slides.setPower(0);
         }
+
+        if (gamepad1.right_bumper) {
+            intake.setPower(1);
+        } else if (gamepad1.left_bumper) {
+            intake.setPower(-1);
+        } else {
+            intake.setPower(0);
+        }
+
+
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
-        telemetry.addData("FL: ", frontLeft.getCurrentPosition());
-        telemetry.addData("FR: ", frontRight.getCurrentPosition());
-        telemetry.addData("BL: ", backLeft.getCurrentPosition());
-        telemetry.addData("BR: ", backRight.getCurrentPosition());
+        telemetry.addData("Distance(cm): ", dist.getDistance(DistanceUnit.CM));
+//        telemetry.addData("FL: ", frontLeft.getCurrentPosition());
+//        telemetry.addData("FR: ", frontRight.getCurrentPosition());
+//        telemetry.addData("BL: ", backLeft.getCurrentPosition());
+//        telemetry.addData("BR: ", backRight.getCurrentPosition());
 
         // Show the elapsed game time and wheel power.
     }

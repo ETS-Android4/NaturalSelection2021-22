@@ -31,9 +31,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class RobotHardware {
     /* Public OpMode members. */
@@ -42,9 +45,9 @@ public class RobotHardware {
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private DcMotor spin = null;
+    private DistanceSensor dist = null;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
-
     /* Constructor */
     public RobotHardware() {
 
@@ -83,6 +86,9 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //setup sensors
+        dist = hardwareMap.get(DistanceSensor.class, "dist");
     }
 
     public void spinnerPower(double power) {
@@ -108,8 +114,15 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
+    public double getDistance(){
+        return dist.getDistance(DistanceUnit.CM);
+    }
     public void forwardDrive(double power) {
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         frontLeft.setPower(-power);
         frontRight.setPower(power);
         backLeft.setPower(-power);
@@ -146,6 +159,11 @@ public class RobotHardware {
     }
 
     public void strafeRight(double power) {
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         frontLeft.setPower(-power);
         frontRight.setPower(-power);
         backLeft.setPower(power);
