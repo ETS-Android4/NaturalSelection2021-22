@@ -48,9 +48,9 @@ public class LayerCake extends LinearOpMode {
         waitForStart();
         layerCake.forwardDrive(0.25,100,0.2);
         layerCake.strafeRight(0.5,-2200,2.5);
-        layerCake.spinerPower(1);
+        layerCake.spinnerPower(1);
         sleep(4000);
-        layerCake.spinerPower(0);
+        layerCake.spinnerPower(0);
         layerCake.strafeRight(0.5,1000, 1);
         layerCake.forwardDrive(0.5,1000, 1);
         layerCake.rotateLeft(1,2);
