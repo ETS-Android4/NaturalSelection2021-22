@@ -44,36 +44,38 @@ public class LayerCake extends LinearOpMode {
     @Override
     public void runOpMode() {
         layerCake.init(hardwareMap);
-        waitForStart();
         Thread telemetryHandler = new Thread() {
             @Override
             public void run() {
                 while (runtime.seconds() < 30 &&opModeIsActive()) {
                     telemetry.addData("Runtime(s): ", runtime.seconds());
-                    telemetry.addData("Distance(cm): ", layerCake.getDistance());
+                    telemetry.addData("Distance(cm): ", layerCake.getLeftDistance());
                     telemetry.addData("Current Task: ", currentStep);
                     telemetry.update();
                 }
             }
         };
         telemetryHandler.start();
+        waitForStart();
+        runtime.reset();
+
         currentStep = "Moving away from wall";
         layerCake.forwardDrive(0.25, 100, 0.2);
         currentStep = "Moving to carousel";
         layerCake.strafeRight(-0.5);
         double startMove = runtime.seconds();
-        while(layerCake.getDistance() > 19){
+        while(layerCake.getLeftDistance() > 19){
             if(runtime.seconds() > startMove + 4){
                 break;
             }
         }
-        //layerCake.strafeRight(0.5, -2200, 2.5);
+        layerCake.stopDrive();
         currentStep = "Delivering Duck";
         layerCake.spinnerPower(1);
         sleep(4000);
         layerCake.spinnerPower(0);
         currentStep = "Moving away from carousel";
-        layerCake.strafeRight(0.5, 1000, 1);
+        layerCake.forwardDrive(0.5, 1000, 2);
         currentStep = "Going forward";
         layerCake.forwardDrive(0.5, 1000, 1);
         currentStep = "Waiting for teleop";

@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.database.sqlite.SQLiteDoneException;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -52,7 +54,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "🦆🦆🦆🦆🦆🦆🦆🦆🦆TESTING🦆🦆🦆🦆🦆🦆🦆🦆🦆", group = "Iterative Opmode")
+@TeleOp(name = "Test", group = "Iterative Opmode")
 
 public class Iterative_Opmode extends OpMode {
     // Declare OpMode members.
@@ -64,13 +66,13 @@ public class Iterative_Opmode extends OpMode {
     private DcMotor spin = null;
     private DcMotor slides = null;
     private DcMotor intake = null;
-    private DistanceSensor dist = null;
+    private DistanceSensor distLeft = null;
+    private DistanceSensor distRight = null;
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -100,7 +102,6 @@ public class Iterative_Opmode extends OpMode {
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -113,9 +114,12 @@ public class Iterative_Opmode extends OpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        dist = hardwareMap.get(DistanceSensor.class, "dist");
+        distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
+        distRight = hardwareMap.get(DistanceSensor.class, "distRight");
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -133,6 +137,10 @@ public class Iterative_Opmode extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slides.setPower(0.5);
+        slides.setTargetPosition(0);
     }
 
     /*
@@ -140,26 +148,23 @@ public class Iterative_Opmode extends OpMode {
      */
     @Override
     public void loop() {
-        //do stick position things
+        //do stick position things(I know its bad but its ok and it works)
         double stickX = -gamepad1.left_stick_x;
         double stickY = gamepad1.left_stick_y;
         double rotatedX = (stickX * Math.cos(Math.PI / 4)) - (stickY * Math.sin(Math.PI / 4));
         double rotatedY = (stickY * Math.cos(Math.PI / 4)) + (stickX * Math.sin(Math.PI / 4));
         double rotation = gamepad1.left_trigger - gamepad1.right_trigger;
 
-        double threshold = 0.2;
         //do math to it
-        if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > threshold) {
+        if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH) {
             frontLeft.setPower(rotatedY);
             backRight.setPower(-rotatedY);
             frontRight.setPower(rotatedX);
             backLeft.setPower(-rotatedX);
-        } else {
-            stopDrive();
-        }
-        //do spinnnnn
-        if (Math.abs(rotation) > threshold) {
+        } else if (Math.abs(rotation) > Constants.STICK_THRESH) {
             turnLeft(rotation);
+        }else {
+            stopDrive();
         }
         //ducky thingy
         if (gamepad1.a) {
@@ -169,11 +174,13 @@ public class Iterative_Opmode extends OpMode {
         }
         //slides
         if (gamepad1.dpad_up) {
-            slides.setPower(0.5);
+            slides.setTargetPosition(Constants.HIGH_POSITION);
+        } else if (gamepad1.dpad_right) {
+            slides.setTargetPosition(Constants.MID_POSITION);
+        } else if (gamepad1.dpad_left) {
+            slides.setTargetPosition(Constants.LOW_POSITION);
         } else if (gamepad1.dpad_down) {
-            slides.setPower(-0.5);
-        } else {
-            slides.setPower(0);
+            slides.setTargetPosition(0);
         }
 
         if (gamepad1.right_bumper) {
@@ -186,13 +193,9 @@ public class Iterative_Opmode extends OpMode {
 
 
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
-        telemetry.addData("Distance(cm): ", dist.getDistance(DistanceUnit.CM));
-//        telemetry.addData("FL: ", frontLeft.getCurrentPosition());
-//        telemetry.addData("FR: ", frontRight.getCurrentPosition());
-//        telemetry.addData("BL: ", backLeft.getCurrentPosition());
-//        telemetry.addData("BR: ", backRight.getCurrentPosition());
+        telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
+        telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
 
-        // Show the elapsed game time and wheel power.
     }
 
     private void turnLeft(double power) {

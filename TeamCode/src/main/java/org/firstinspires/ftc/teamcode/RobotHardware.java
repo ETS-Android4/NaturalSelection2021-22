@@ -45,7 +45,10 @@ public class RobotHardware {
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private DcMotor spin = null;
-    private DistanceSensor dist = null;
+    private DcMotor slides = null;
+    private DcMotor intake = null;
+    private DistanceSensor distLeft = null;
+    private DistanceSensor distRight = null;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
     /* Constructor */
@@ -64,13 +67,24 @@ public class RobotHardware {
         backRight = hardwareMap.get(DcMotor.class, "br");
         backLeft = hardwareMap.get(DcMotor.class, "bl");
         spin = hardwareMap.get(DcMotor.class, "spin");
+        slides = hardwareMap.get(DcMotor.class, "slides");
+        intake = hardwareMap.get(DcMotor.class, "nom");
 
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
         spin.setDirection(DcMotorSimple.Direction.FORWARD);
+        slides.setDirection(DcMotorSimple.Direction.FORWARD);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Set all motors to zero power
         frontLeft.setPower(0);
@@ -78,21 +92,40 @@ public class RobotHardware {
         backLeft.setPower(0);
         backRight.setPower(0);
         spin.setPower(0);
+        slides.setPower(0);
+        intake.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
+        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //setup sensors
-        dist = hardwareMap.get(DistanceSensor.class, "dist");
+        distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
+        distRight = hardwareMap.get(DistanceSensor.class, "distRight");
     }
 
     public void spinnerPower(double power) {
         spin.setPower(power);
+    }
+    public void initSlides(){
+        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slides.setPower(0.5);
+        slides.setTargetPosition(0);
+    }
+    public void setSlidePosition(int pos){
+        slides.setTargetPosition(pos);
     }
 
     public void rotateLeft(double power, double timeout) {
@@ -114,8 +147,8 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    public double getDistance(){
-        return dist.getDistance(DistanceUnit.CM);
+    public double getLeftDistance(){
+        return distLeft.getDistance(DistanceUnit.CM);
     }
     public void forwardDrive(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
