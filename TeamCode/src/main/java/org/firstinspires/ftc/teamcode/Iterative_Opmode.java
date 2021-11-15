@@ -68,6 +68,8 @@ public class Iterative_Opmode extends OpMode {
     private DcMotor intake = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
+    private int slidesTarget = 0;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -139,7 +141,7 @@ public class Iterative_Opmode extends OpMode {
         runtime.reset();
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slides.setPower(0.5);
+        slides.setPower(Constants.SLIDE_POWER);
         slides.setTargetPosition(0);
     }
 
@@ -174,27 +176,32 @@ public class Iterative_Opmode extends OpMode {
         }
         //slides
         if (gamepad1.dpad_up) {
-            slides.setTargetPosition(Constants.HIGH_POSITION);
+            slidesTarget = Constants.HIGH_POSITION;
         } else if (gamepad1.dpad_right) {
-            slides.setTargetPosition(Constants.MID_POSITION);
+            slidesTarget = Constants.MID_POSITION;
         } else if (gamepad1.dpad_left) {
-            slides.setTargetPosition(Constants.LOW_POSITION);
+            slidesTarget = Constants.LOW_POSITION;
         } else if (gamepad1.dpad_down) {
-            slides.setTargetPosition(0);
+            slidesTarget = 0;
         }
 
-        if (gamepad1.right_bumper) {
-            intake.setPower(1);
-        } else if (gamepad1.left_bumper) {
-            intake.setPower(-1);
+            slidesTarget += -gamepad1.right_stick_y * 37;
+            slidesTarget = Math.min(slidesTarget,Constants.SLIDE_MAX);
+            slidesTarget = Math.max(slidesTarget,0);
+
+        if (gamepad1.left_bumper) {
+            intake.setPower(Constants.INTAKE_POWER);
+        } else if (gamepad1.right_bumper) {
+            intake.setPower(Constants.OUTPUT_POWER);
         } else {
             intake.setPower(0);
         }
 
-
+        slides.setTargetPosition(slidesTarget);
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
+        telemetry.addData("FL: ", frontLeft.getCurrentPosition());
 
     }
 

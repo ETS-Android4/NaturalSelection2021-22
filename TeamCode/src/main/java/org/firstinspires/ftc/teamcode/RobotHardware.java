@@ -121,7 +121,7 @@ public class RobotHardware {
     public void initSlides(){
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slides.setPower(0.5);
+        slides.setPower(Constants.SLIDE_POWER);
         slides.setTargetPosition(0);
     }
     public void setSlidePosition(int pos){
@@ -147,9 +147,52 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+    public void rotateLeft(double power, int position, double timeout) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(position);
+        frontRight.setTargetPosition(position);
+        backLeft.setTargetPosition(position);
+        backRight.setTargetPosition(position);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //set powers
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(power);
+        backRight.setPower(power);
+        //noinspection StatementWithEmptyBody
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+        }
+        stopDrive();
+    }
+
     public double getLeftDistance(){
         return distLeft.getDistance(DistanceUnit.CM);
     }
+
+    public double getRightDistance(){
+        return distRight.getDistance(DistanceUnit.CM);
+    }
+
+    public void output(boolean on){
+        if(on) {
+            intake.setPower(Constants.OUTPUT_POWER);
+        }else{
+            intake.setPower(0);
+        }
+    }
+
     public void forwardDrive(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
