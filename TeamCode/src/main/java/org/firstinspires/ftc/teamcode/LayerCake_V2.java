@@ -50,7 +50,7 @@ public class LayerCake_V2 extends LinearOpMode {
         Thread telemetryHandler = new Thread() {
             @Override
             public void run() {
-                while (runtime.seconds() < 30 &&opModeIsActive()) {
+                while (runtime.seconds() < 30) {
                     telemetry.addData("Runtime(s): ", runtime.seconds());
                     telemetry.addData("Distance(cm): ", layerCake.getLeftDistance());
                     telemetry.addData("Current Task: ", currentStep);
@@ -69,20 +69,20 @@ public class LayerCake_V2 extends LinearOpMode {
         bar1 = layerCake.getRightDistance();
         sleep(1000);
         currentStep = "Moving to position 2";
-        layerCake.forwardDrive(0.25, 500, 10);
+        layerCake.forwardDrive(0.25, 250, 10);
         sleep(1000);
         bar2 = layerCake.getRightDistance();
         layerCake.stopDrive();
         sleep(1000);
         currentStep = "Moving to position 3";
-        layerCake.forwardDrive(0.25, 500, 10);
+        layerCake.forwardDrive(0.25, 250, 10);
         layerCake.stopDrive();
         sleep(1000);
         bar3 = layerCake.getRightDistance();
         sleep(1000);
         currentStep = "Moving to shipping hub";
         layerCake.rotateLeft(0.25,-Constants.FULL_SPIN/4,10);
-        layerCake.strafeRight(0.25, 500, 10);
+        layerCake.strafeRight(0.25, -650, 10);
         if(bar1 > 35 && bar1 < 45){
             layerCake.setSlidePosition(Constants.HIGH_POSITION);
         }else if(bar2 > 35 && bar2 < 45){
@@ -90,13 +90,19 @@ public class LayerCake_V2 extends LinearOpMode {
         }else{
             layerCake.setSlidePosition(Constants.LOW_POSITION);
         }
-        layerCake.forwardDrive(0.5, 1000, 10);
+        layerCake.forwardDrive(0.5, 850, 10);
         sleep(1000);
         layerCake.output(true);
         sleep(2000);
         layerCake.output(false);
-        layerCake.forwardDrive(0.5, -1000, 1);
+        currentStep = "Parking";
+        layerCake.forwardDrive(0.5, -750, 1);
+        layerCake.strafeRight(0.5, 2000, 10);
         layerCake.stopDrive();
+        currentStep = "Waiting";
+        layerCake.setSlidePosition(0);
+        sleep(1000);
+
     }
 
 }
