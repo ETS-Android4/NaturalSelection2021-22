@@ -83,20 +83,25 @@ public class LayerCake_V2 extends LinearOpMode {
         currentStep = "Moving to shipping hub";
         layerCake.rotateLeft(0.25,-Constants.FULL_SPIN/4,10);
         layerCake.strafeRight(0.25, -650, 10);
-        if(bar1 > 35 && bar1 < 45){
+
+        if(bar1>50||bar1<38){bar1=-1;}
+        if(bar2>50||bar2<38){bar2=-1;}
+        if(bar3>50||bar3<38){bar3=-1;}
+
+        if(bar1 > bar2 && bar1 > bar3){
             layerCake.setSlidePosition(Constants.HIGH_POSITION);
-        }else if(bar2 > 35 && bar2 < 45){
+        }else if(bar2 > bar3){
             layerCake.setSlidePosition(Constants.MID_POSITION);
         }else{
             layerCake.setSlidePosition(Constants.LOW_POSITION);
         }
         layerCake.forwardDrive(0.5, 850, 10);
-        sleep(500);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
-        layerCake.forwardDrive(0.5, -1000, 1);
+        layerCake.forwardDrive(-0.5);
+        while(layerCake.getBackDistance()>15){}
         layerCake.strafeRight(0.5, 2000, 10);
         layerCake.stopDrive();
         currentStep = "Waiting";

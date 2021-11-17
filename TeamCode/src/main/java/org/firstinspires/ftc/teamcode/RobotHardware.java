@@ -49,8 +49,11 @@ public class RobotHardware {
     private DcMotor intake = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
+    private DistanceSensor distBack = null;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
+
+
     /* Constructor */
     public RobotHardware() {
 
@@ -113,6 +116,7 @@ public class RobotHardware {
         //setup sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
+        distBack = hardwareMap.get(DistanceSensor.class, "distBack");
     }
 
     public void spinnerPower(double power) {
@@ -183,6 +187,10 @@ public class RobotHardware {
 
     public double getRightDistance(){
         return distRight.getDistance(DistanceUnit.CM);
+    }
+
+    public double getBackDistance(){
+        return distBack.getDistance(DistanceUnit.CM);
     }
 
     public void output(boolean on){

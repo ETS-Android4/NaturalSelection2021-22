@@ -68,6 +68,7 @@ public class Iterative_Opmode extends OpMode {
     private DcMotor intake = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
+    private DistanceSensor distBack = null;
     private int slidesTarget = 0;
 
     /*
@@ -121,6 +122,7 @@ public class Iterative_Opmode extends OpMode {
 
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
+        distBack = hardwareMap.get(DistanceSensor.class, "distBack");
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -201,6 +203,7 @@ public class Iterative_Opmode extends OpMode {
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
+        telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
         telemetry.addData("FL: ", frontLeft.getCurrentPosition());
 
     }
