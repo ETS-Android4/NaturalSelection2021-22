@@ -67,6 +67,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
+    private boolean loop = true;
     private int slidesTarget = 0;
 
     /*
@@ -131,6 +132,36 @@ public class Iterative_Opmode_V_2 extends OpMode {
      */
     @Override
     public void init_loop() {
+        Thread slideHandler = new Thread() {
+            @Override
+            public void run() {
+                while (loop) {
+                    if (gamepad2.dpad_up) {
+                        slidesTarget = Constants.HIGH_POSITION;
+                    } else if (gamepad2.dpad_right) {
+                        slidesTarget = Constants.MID_POSITION;
+                    } else if (gamepad2.dpad_left) {
+                        slidesTarget = Constants.LOW_POSITION;
+                    } else if (gamepad2.dpad_down) {
+                        slidesTarget = 0;
+                    }
+                    slidesTarget += -gamepad2.left_stick_y * 30;
+                    slidesTarget = Math.min(slidesTarget,Constants.SLIDE_MAX);
+                    slidesTarget = Math.max(slidesTarget,0);
+                    slides.setTargetPosition(slidesTarget);
+                    if (gamepad2.x) {
+                        while (gamepad2.x) {
+                            slidesTarget += -gamepad2.left_stick_y * 5;
+                            slides.setTargetPosition(slidesTarget);
+                        }
+                        slidesTarget = 0;
+                        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
+                }
+            }
+        };
+        slideHandler.start();
     }
 
     /*
@@ -169,36 +200,23 @@ public class Iterative_Opmode_V_2 extends OpMode {
             stopDrive();
         }
         //ducky thingy
-        if (gamepad2.right_bumper) {
+        if (gamepad2.a) {
             spin.setPower(1);
-        } else if(gamepad2.left_bumper){
+        } else if(gamepad2.b){
             spin.setPower(-1);
         }else{
             spin.setPower(0);
         }
         //slides
-        if (gamepad2.dpad_up) {
-            slidesTarget = Constants.HIGH_POSITION;
-        } else if (gamepad2.dpad_right) {
-            slidesTarget = Constants.MID_POSITION;
-        } else if (gamepad2.dpad_left) {
-            slidesTarget = Constants.LOW_POSITION;
-        } else if (gamepad2.dpad_down) {
-            slidesTarget = 0;
-        }
-            slidesTarget += -gamepad2.right_stick_y * 20;
-            slidesTarget = Math.min(slidesTarget,Constants.SLIDE_MAX);
-            slidesTarget = Math.max(slidesTarget,0);
 
-        if (gamepad2.a) {
+        if (gamepad2.left_bumper) {
             intake.setPower(Constants.INTAKE_POWER);
-        } else if (gamepad2.b) {
+        } else if (gamepad2.right_bumper) {
             intake.setPower(Constants.OUTPUT_POWER);
         } else {
             intake.setPower(0);
         }
 
-        slides.setTargetPosition(slidesTarget);
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
@@ -227,6 +245,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
      */
     @Override
     public void stop() {
+        loop = false;
     }
 
 }
