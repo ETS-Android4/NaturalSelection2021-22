@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -67,7 +68,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private boolean loop = true;
+    private DigitalChannel magSwitch = null;
+    private Thread slideZeroer = null;
     private int slidesTarget = 0;
 
     /*
@@ -122,7 +124,13 @@ public class Iterative_Opmode_V_2 extends OpMode {
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
-
+        magSwitch = hardwareMap.get(DigitalChannel.class, "mag");
+        magSwitch.setMode(DigitalChannel.Mode.INPUT);
+        //init slides
+        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slides.setPower(Constants.SLIDE_POWER);
+        slides.setTargetPosition(0);
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -132,36 +140,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
      */
     @Override
     public void init_loop() {
-        Thread slideHandler = new Thread() {
-            @Override
-            public void run() {
-                while (loop) {
-                    if (gamepad2.dpad_up) {
-                        slidesTarget = Constants.HIGH_POSITION;
-                    } else if (gamepad2.dpad_right) {
-                        slidesTarget = Constants.MID_POSITION;
-                    } else if (gamepad2.dpad_left) {
-                        slidesTarget = Constants.LOW_POSITION;
-                    } else if (gamepad2.dpad_down) {
-                        slidesTarget = 0;
-                    }
-                    slidesTarget += -gamepad2.left_stick_y * 30;
-                    slidesTarget = Math.min(slidesTarget,Constants.SLIDE_MAX);
-                    slidesTarget = Math.max(slidesTarget,0);
-                    slides.setTargetPosition(slidesTarget);
-                    if (gamepad2.x) {
-                        while (gamepad2.x) {
-                            slidesTarget += -gamepad2.left_stick_y * 5;
-                            slides.setTargetPosition(slidesTarget);
-                        }
-                        slidesTarget = 0;
-                        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    }
-                }
-            }
-        };
-        slideHandler.start();
     }
 
     /*
@@ -170,10 +148,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
     @Override
     public void start() {
         runtime.reset();
-        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slides.setPower(Constants.SLIDE_POWER);
-        slides.setTargetPosition(0);
     }
 
     /*
@@ -207,8 +181,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
         }else{
             spin.setPower(0);
         }
-        //slides
 
+        //intake
         if (gamepad2.left_bumper) {
             intake.setPower(Constants.INTAKE_POWER);
         } else if (gamepad2.right_bumper) {
@@ -216,12 +190,35 @@ public class Iterative_Opmode_V_2 extends OpMode {
         } else {
             intake.setPower(0);
         }
+        //slides
+        if(!slideZeroer.isAlive()) {
+            if (gamepad2.dpad_up) {
+                slidesTarget = Constants.HIGH_POSITION;
+            } else if (gamepad2.dpad_right) {
+                slidesTarget = Constants.MID_POSITION;
+            } else if (gamepad2.dpad_left) {
+                slidesTarget = Constants.LOW_POSITION;
+            } else if (gamepad2.dpad_down) {
+                slidesTarget = 0;
+            }
+            //manual adjustments
+            slidesTarget += -gamepad2.right_stick_y * 25;
+            //keep it in a range
+            slidesTarget = Math.min(slidesTarget, Constants.SLIDE_MAX);
+            slidesTarget = Math.max(slidesTarget, 0);
+            slides.setTargetPosition(slidesTarget);
+            if(gamepad2.x){
+                slideZeroer = makeZeroer();
+                slideZeroer.start();
+            }
+        }
 
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
         telemetry.addData("FL: ", frontLeft.getCurrentPosition());
+        telemetry.addData("Switch: ", magSwitch.getState());
 
     }
 
@@ -238,14 +235,42 @@ public class Iterative_Opmode_V_2 extends OpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
     }
-
+    private Thread makeZeroer(){
+        return new Thread(){
+            public void run(){
+                double start = runtime.seconds();
+                boolean timeout = false;
+                slides.setTargetPosition(0);
+                while(slides.isBusy()){
+                    telemetry.addData("Zeroing:", "Please Wait");
+                    telemetry.update();
+                }
+                slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                slides.setPower(-0.1);
+                while(!magSwitch.getState() && !timeout){
+                    telemetry.addData("Zeroing:", "Looking for limit switch");
+                    telemetry.update();
+                    if(runtime.seconds() - start > 1){
+                        timeout = true;
+                    }
+                }
+                if(!timeout) {
+                    slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                }
+                slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slides.setTargetPosition(0);
+                slides.setPower(0.5);
+                telemetry.addData("Zeroing:", "Finished");
+                telemetry.update();
+            }
+        };
+    }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
     @Override
-    public void stop() {
-        loop = false;
+    public void stop(){
     }
 
 }
