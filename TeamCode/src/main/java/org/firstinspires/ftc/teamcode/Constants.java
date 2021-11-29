@@ -12,6 +12,6 @@ public class Constants {
     public static int BAR_3 = 1000;
     public static double INTAKE_POWER = -1;
     public static double OUTPUT_POWER = 0.75;
-    public static double SLIDE_POWER = 0.75;
+    public static double SLIDE_POWER = 1;
 
 }

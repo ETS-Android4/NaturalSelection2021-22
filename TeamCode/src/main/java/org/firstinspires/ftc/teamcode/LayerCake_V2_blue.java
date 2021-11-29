@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
+package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
@@ -27,15 +27,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.RobotHardware;
 
-@Autonomous(name = "Layer Cake V2!")
-public class LayerCake_V2 extends LinearOpMode {
+
+@Autonomous(name = "Layer Cake V2! Blue")
+public class LayerCake_V2_blue extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -66,41 +67,42 @@ public class LayerCake_V2 extends LinearOpMode {
         layerCake.initSlides();
         runtime.reset();
         //sleep(100);
-        bar1 = layerCake.getRightDistance();
+        bar1 = layerCake.getLeftDistance();
         sleep(50);
         currentStep = "Moving to position 2";
         layerCake.forwardDrive(0.25, 250, 1.5);
         //sleep(100);
-        bar2 = layerCake.getRightDistance();
+        bar2 = layerCake.getLeftDistance();
         layerCake.stopDrive();
         sleep(50);
         currentStep = "Moving to position 3";
         layerCake.forwardDrive(0.25, 250, 1.5);
         layerCake.stopDrive();
         //sleep(100);
-        bar3 = layerCake.getRightDistance();
+        bar3 = layerCake.getLeftDistance();
         sleep(50);
         currentStep = "Moving to shipping hub";
-        layerCake.rotateLeft(0.25,-Constants.FULL_SPIN/4,3);
-        layerCake.strafeRight(0.25, -650, 2);
+        layerCake.rotateLeft(0.25,Constants.FULL_SPIN/4,3);
+        layerCake.strafeRight(0.25, 650, 2);
+
         if(bar1>50||bar1<38){bar1=-1;}
         if(bar2>50||bar2<38){bar2=-1;}
         if(bar3>50||bar3<38){bar3=-1;}
+
         if(bar1 > bar2 && bar1 > bar3){
-            layerCake.setSlidePosition(Constants.HIGH_POSITION);
+            layerCake.setSlidePosition(Constants.LOW_POSITION);
         }else if(bar2 > bar3){
             layerCake.setSlidePosition(Constants.MID_POSITION);
         }else{
-            layerCake.setSlidePosition(Constants.LOW_POSITION);
+            layerCake.setSlidePosition(Constants.HIGH_POSITION);
         }
         layerCake.forwardDrive(0.5, 850, 4);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
-        layerCake.forwardDrive(-0.5);
         layerCake.forwardDrive(0.5, -1000, 5);
-        layerCake.strafeRight(0.5, 2000, 10);
+        layerCake.strafeRight(0.5, -2000, 10);
         layerCake.stopDrive();
         currentStep = "Waiting";
         layerCake.setSlidePosition(0);

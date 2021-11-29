@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -69,7 +70,12 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private DigitalChannel magSwitch = null;
-    private Thread slideZeroer = null;
+//    private Thread slideZeroer = new Thread(){
+//        @Override
+//        public void run() {
+//
+//        }
+//    };
     private int slidesTarget = 0;
 
     /*
@@ -108,7 +114,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -127,10 +132,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
         magSwitch = hardwareMap.get(DigitalChannel.class, "mag");
         magSwitch.setMode(DigitalChannel.Mode.INPUT);
         //init slides
-        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setTargetPosition(0);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
-        slides.setTargetPosition(0);
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -191,7 +195,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
             intake.setPower(0);
         }
         //slides
-        if(!slideZeroer.isAlive()) {
+        //if(!slideZeroer.isAlive()) {
             if (gamepad2.dpad_up) {
                 slidesTarget = Constants.HIGH_POSITION;
             } else if (gamepad2.dpad_right) {
@@ -202,16 +206,18 @@ public class Iterative_Opmode_V_2 extends OpMode {
                 slidesTarget = 0;
             }
             //manual adjustments
-            slidesTarget += -gamepad2.right_stick_y * 25;
+        slidesTarget += -gamepad2.right_stick_y * 25;
             //keep it in a range
-            slidesTarget = Math.min(slidesTarget, Constants.SLIDE_MAX);
-            slidesTarget = Math.max(slidesTarget, 0);
-            slides.setTargetPosition(slidesTarget);
-            if(gamepad2.x){
-                slideZeroer = makeZeroer();
-                slideZeroer.start();
-            }
-        }
+        //slidesTarget = Math.min(slidesTarget, Constants.SLIDE_MAX);
+        //slidesTarget = Math.max(slidesTarget, 0);
+        slidesTarget = Range.clip(slidesTarget, 0, Constants.SLIDE_MAX);
+        slides.setTargetPosition(slidesTarget);
+        slides.setPower(Constants.SLIDE_POWER);
+//            if(gamepad2.x){
+//                slideZeroer = makeZeroer();
+//                slideZeroer.start();
+//            }
+        //}
 
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
@@ -235,33 +241,39 @@ public class Iterative_Opmode_V_2 extends OpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
     }
+
     private Thread makeZeroer(){
         return new Thread(){
             public void run(){
                 double start = runtime.seconds();
                 boolean timeout = false;
                 slides.setTargetPosition(0);
-                while(slides.isBusy()){
-                    telemetry.addData("Zeroing:", "Please Wait");
-                    telemetry.update();
+                telemetry.addData("Zeroing:", "Please Wait");
+                telemetry.update();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                //slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 slides.setPower(-0.1);
-                while(!magSwitch.getState() && !timeout){
+                while(magSwitch.getState() && !timeout){
                     telemetry.addData("Zeroing:", "Looking for limit switch");
                     telemetry.update();
-                    if(runtime.seconds() - start > 1){
+                    if(runtime.seconds() - start > 5){
                         timeout = true;
                     }
                 }
                 if(!timeout) {
+                    slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slidesTarget = slides.getCurrentPosition() + 50;
+                    slides.setTargetPosition(slidesTarget);
                     slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
                 slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                slides.setTargetPosition(0);
+                slidesTarget = 0;
+                slides.setTargetPosition(slidesTarget);
                 slides.setPower(0.5);
-                telemetry.addData("Zeroing:", "Finished");
-                telemetry.update();
             }
         };
     }
