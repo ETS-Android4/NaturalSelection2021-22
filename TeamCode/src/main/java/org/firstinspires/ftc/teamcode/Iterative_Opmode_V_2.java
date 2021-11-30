@@ -210,15 +210,13 @@ public class Iterative_Opmode_V_2 extends OpMode {
             //keep it in a range
         //slidesTarget = Math.min(slidesTarget, Constants.SLIDE_MAX);
         //slidesTarget = Math.max(slidesTarget, 0);
-        slidesTarget = Range.clip(slidesTarget, 0, Constants.SLIDE_MAX);
+        slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
         slides.setTargetPosition(slidesTarget);
         slides.setPower(Constants.SLIDE_POWER);
-//            if(gamepad2.x){
-//                slideZeroer = makeZeroer();
-//                slideZeroer.start();
-//            }
-        //}
-
+        if(gamepad2.x){
+            slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
