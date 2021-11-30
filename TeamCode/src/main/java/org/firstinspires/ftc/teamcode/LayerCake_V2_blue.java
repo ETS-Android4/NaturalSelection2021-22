@@ -63,32 +63,33 @@ public class LayerCake_V2_blue extends LinearOpMode {
             }
         };
         telemetryHandler.start();
-        waitForStart();
         layerCake.initSlides();
+        waitForStart();
         runtime.reset();
-        //sleep(100);
+        //Check first bar
         bar1 = layerCake.getLeftDistance();
         sleep(50);
         currentStep = "Moving to position 2";
         layerCake.forwardDrive(0.25, 250, 1.5);
-        //sleep(100);
+        //Check second bar
         bar2 = layerCake.getLeftDistance();
         layerCake.stopDrive();
         sleep(50);
         currentStep = "Moving to position 3";
         layerCake.forwardDrive(0.25, 250, 1.5);
         layerCake.stopDrive();
-        //sleep(100);
+        //Check last bar
         bar3 = layerCake.getLeftDistance();
         sleep(50);
         currentStep = "Moving to shipping hub";
         layerCake.rotateLeft(0.25,Constants.FULL_SPIN/4,3);
+        //line up with the shipping hub
         layerCake.strafeRight(0.25, 650, 2);
-
+        //Check which bars are possible
         if(bar1>50||bar1<38){bar1=-1;}
         if(bar2>50||bar2<38){bar2=-1;}
         if(bar3>50||bar3<38){bar3=-1;}
-
+        //set the slide to the correct position
         if(bar1 > bar2 && bar1 > bar3){
             layerCake.setSlidePosition(Constants.LOW_POSITION);
         }else if(bar2 > bar3){
@@ -96,6 +97,7 @@ public class LayerCake_V2_blue extends LinearOpMode {
         }else{
             layerCake.setSlidePosition(Constants.HIGH_POSITION);
         }
+        //move up to the shipping hub
         layerCake.forwardDrive(0.5, 850, 4);
         layerCake.output(true);
         sleep(1000);

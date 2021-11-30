@@ -124,9 +124,9 @@ public class RobotHardware {
     }
     public void initSlides(){
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setTargetPosition(0);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
-        slides.setTargetPosition(0);
     }
     public void setSlidePosition(int pos){
         slides.setTargetPosition(pos);
