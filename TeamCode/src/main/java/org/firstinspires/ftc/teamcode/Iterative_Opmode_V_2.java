@@ -173,7 +173,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
             frontRight.setPower(rotatedX);
             backLeft.setPower(-rotatedX);
         } else if (Math.abs(rotation) > Constants.STICK_THRESH) {
-            turnLeft(rotation);
+            turnLeft(rotation*0.9);
         }else {
             stopDrive();
         }

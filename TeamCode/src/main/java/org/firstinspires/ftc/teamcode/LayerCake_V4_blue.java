@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
+package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
@@ -27,22 +27,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Layer Cake V2!")
-public class LayerCake_V2 extends LinearOpMode {
+@Autonomous(name = "Duck Truck V2")
+public class LayerCake_V4_blue extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
     private String currentStep = "waiting for start";
-    private double bar1 = 0;//high
-    private double bar2 = 0;//middle
-    private double bar3 = 0;//low
+    double barScan = 0;
     ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() {
@@ -52,55 +48,77 @@ public class LayerCake_V2 extends LinearOpMode {
             public void run() {
                 while (runtime.seconds() < 30) {
                     telemetry.addData("Runtime(s): ", runtime.seconds());
-                    telemetry.addData("Distance(cm): ", layerCake.getLeftDistance());
+                    telemetry.addData("Distance Left(cm): ", layerCake.getLeftDistance());
+                    telemetry.addData("Distance Right(cm): ", layerCake.getRightDistance());
+                    telemetry.addData("Distance Back(cm): ", layerCake.getBackDistance());
+                    telemetry.addData("Bar Scan: ", barScan);
+
                     telemetry.addData("Current Task: ", currentStep);
-                    telemetry.addData("BAR 1(high): ", bar1);
-                    telemetry.addData("BAR 2(middle): ", bar2);
-                    telemetry.addData("BAR 3(low): ", bar3);
                     telemetry.update();
                 }
             }
         };
         telemetryHandler.start();
-        waitForStart();
         layerCake.initSlides();
+        waitForStart();
         runtime.reset();
-        //sleep(100);
-        bar1 = layerCake.getRightDistance();
+        //moves away from wall
         sleep(50);
-        currentStep = "Moving to position 2";
-        layerCake.forwardDrive(0.25, 250, 1.5);
-        //sleep(100);
-        bar2 = layerCake.getRightDistance();
+        layerCake.forwardDrive(0.2,250,2);
+        layerCake.strafeRight(0.2);
+        layerCake.setSlidePosition(Constants.LOW_POSITION);
+        //moves towards spinner
+        while(layerCake.getRightDistance() > 6) {}
+        layerCake.forwardDrive(-0.2);
+        while(layerCake.getBackDistance() > 24.5 && runtime.seconds() < 7) {}
+        layerCake.stopDrive();
+        layerCake.spinnerPower(-1);
+        sleep(3000);
+        layerCake.spinnerPower(0);
+
+
+
+
+        layerCake.forwardDrive(0.2);
+        while(layerCake.getBackDistance() < 65 && runtime.seconds() < 13) {}
+
+
+        layerCake.strafeRight(-0.1);
+        while(layerCake.getRightDistance() < 35 && runtime.seconds() < 16) {
+        }
         layerCake.stopDrive();
         sleep(50);
-        currentStep = "Moving to position 3";
-        layerCake.forwardDrive(0.25, 250, 1.5);
-        layerCake.stopDrive();
-        //sleep(100);
-        bar3 = layerCake.getRightDistance();
+        barScan = layerCake.getLeftDistance();
         sleep(50);
-        currentStep = "Moving to shipping hub";
-        layerCake.rotateLeft(0.25,-Constants.FULL_SPIN/4,3);
-        layerCake.strafeRight(0.25, -650, 2);
-        if(bar1>50||bar1<38){bar1=-1;}
-        if(bar2>50||bar2<38){bar2=-1;}
-        if(bar3>50||bar3<38){bar3=-1;}
-        if(bar1 > bar2 && bar1 > bar3){
+
+        layerCake.rotateLeft(0.5,Constants.FULL_SPIN/4,2);
+        //set the slide to the correct position
+        if(barScan < Constants.BAR_1_MAX){
             layerCake.setSlidePosition(Constants.HIGH_POSITION);
-        }else if(bar2 > bar3){
+        }else if(barScan >= Constants.BAR_1_MAX && barScan <= Constants.BAR_2_MAX){
             layerCake.setSlidePosition(Constants.MID_POSITION);
         }else{
             layerCake.setSlidePosition(Constants.LOW_POSITION);
         }
+        layerCake.strafeRight(0.5, 400, 3);
+        //move up to the shipping hub
+
+
+
+
+
         layerCake.forwardDrive(0.5, 850, 4);
+
+
+
+
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
-        layerCake.forwardDrive(-0.5);
-        layerCake.forwardDrive(0.5, -1000, 5);
-        layerCake.strafeRight(0.5, 2000, 10);
+        layerCake.strafeRight(0.5, -1750, 10);
+        layerCake.forwardDrive(0.5, 3000, 10);
+        layerCake.rotateLeft(0.5, -Constants.FULL_SPIN/4, 10);
         layerCake.stopDrive();
         currentStep = "Waiting";
         layerCake.setSlidePosition(0);

@@ -31,12 +31,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.RobotHardware;
 
-
-@Autonomous(name = "Layer Cake V2 blue")
-public class LayerCake_V2_blue extends LinearOpMode {
+@Autonomous(name = "Duck Truck")
+public class LayerCake_V3_blue extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -55,9 +52,9 @@ public class LayerCake_V2_blue extends LinearOpMode {
                     telemetry.addData("Runtime(s): ", runtime.seconds());
                     telemetry.addData("Distance(cm): ", layerCake.getLeftDistance());
                     telemetry.addData("Current Task: ", currentStep);
-                    telemetry.addData("BAR 1(high): ", bar1);
+                    telemetry.addData("BAR 1(low): ", bar1);
                     telemetry.addData("BAR 2(middle): ", bar2);
-                    telemetry.addData("BAR 3(low): ", bar3);
+                    telemetry.addData("BAR 3(high): ", bar3);
                     telemetry.update();
                 }
             }
@@ -66,25 +63,40 @@ public class LayerCake_V2_blue extends LinearOpMode {
         layerCake.initSlides();
         waitForStart();
         runtime.reset();
+        //moves away from wall
+        layerCake.getLeftDistance();
+        sleep(50);
+        layerCake.strafeRight(0.2,125,2);
+            layerCake.forwardDrive(-0.2);
+        //moves towards spinner
+        while(layerCake.getBackDistance() > 8) {}
+        layerCake.strafeRight(-0.2);
+        while(layerCake.getLeftDistance() >15 && runtime.seconds() < 7) {}
+        layerCake.stopDrive();
+        layerCake.spinnerPower(-1);
+        sleep(3000);
+        layerCake.spinnerPower(0);
+        layerCake.forwardDrive(0.75, 750, 3);
+
         //Check first bar
-        bar1 = layerCake.getLeftDistance();
+        bar1 = layerCake.getRightDistance();
         sleep(50);
         currentStep = "Moving to position 2";
         layerCake.forwardDrive(0.25, 250, 1.5);
         //Check second bar
-        bar2 = layerCake.getLeftDistance();
+        bar2 = layerCake.getRightDistance();
         layerCake.stopDrive();
         sleep(50);
         currentStep = "Moving to position 3";
         layerCake.forwardDrive(0.25, 250, 1.5);
         layerCake.stopDrive();
         //Check last bar
-        bar3 = layerCake.getLeftDistance();
+        bar3 = layerCake.getRightDistance();
         sleep(50);
         currentStep = "Moving to shipping hub";
-        layerCake.rotateLeft(0.25,Constants.FULL_SPIN/4,3);
+        layerCake.rotateLeft(0.25,-Constants.FULL_SPIN/4,3);
         //line up with the shipping hub
-        layerCake.strafeRight(0.25, 650, 2);
+        layerCake.strafeRight(0.25, -650, 2);
         //Check which bars are possible
         if(bar1>50||bar1<38){bar1=-1;}
         if(bar2>50||bar2<38){bar2=-1;}
@@ -98,7 +110,7 @@ public class LayerCake_V2_blue extends LinearOpMode {
             layerCake.setSlidePosition(Constants.HIGH_POSITION);
         }
         //move up to the shipping hub
-        layerCake.forwardDrive(0.5, 850, 4);
+        layerCake.forwardDrive(0.5, 800, 4);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);

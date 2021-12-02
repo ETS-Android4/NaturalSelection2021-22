@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights reserved.
+/* Copyright (c) 2017 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
@@ -27,13 +27,15 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights r
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Duck Truck")
-public class LayerCake_V2_1_blue extends LinearOpMode {
+@Autonomous(name = "Layer Cake V2 red")
+public class LayerCake_V2_red extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -52,71 +54,53 @@ public class LayerCake_V2_1_blue extends LinearOpMode {
                     telemetry.addData("Runtime(s): ", runtime.seconds());
                     telemetry.addData("Distance(cm): ", layerCake.getLeftDistance());
                     telemetry.addData("Current Task: ", currentStep);
-                    telemetry.addData("BAR 1(low): ", bar1);
+                    telemetry.addData("BAR 1(high): ", bar1);
                     telemetry.addData("BAR 2(middle): ", bar2);
-                    telemetry.addData("BAR 3(high): ", bar3);
+                    telemetry.addData("BAR 3(low): ", bar3);
                     telemetry.update();
                 }
             }
         };
         telemetryHandler.start();
-        layerCake.initSlides();
         waitForStart();
+        layerCake.initSlides();
         runtime.reset();
-        //moves away from wall
-        layerCake.getLeftDistance();
-        sleep(50);
-        layerCake.strafeRight(0.2,125,2);
-            layerCake.forwardDrive(-0.2);
-        //moves towards spinner
-        while(layerCake.getBackDistance() > 8) {}
-        layerCake.strafeRight(-0.2);
-        while(layerCake.getLeftDistance() >15 && runtime.seconds() < 7) {}
-        layerCake.stopDrive();
-        layerCake.spinnerPower(-1);
-        sleep(3000);
-        layerCake.spinnerPower(0);
-        layerCake.forwardDrive(0.75, 750, 3);
-
-        //Check first bar
+        //sleep(100);
         bar1 = layerCake.getRightDistance();
         sleep(50);
         currentStep = "Moving to position 2";
         layerCake.forwardDrive(0.25, 250, 1.5);
-        //Check second bar
+        //sleep(100);
         bar2 = layerCake.getRightDistance();
         layerCake.stopDrive();
         sleep(50);
         currentStep = "Moving to position 3";
         layerCake.forwardDrive(0.25, 250, 1.5);
         layerCake.stopDrive();
-        //Check last bar
+        //sleep(100);
         bar3 = layerCake.getRightDistance();
         sleep(50);
         currentStep = "Moving to shipping hub";
         layerCake.rotateLeft(0.25,-Constants.FULL_SPIN/4,3);
-        //line up with the shipping hub
         layerCake.strafeRight(0.25, -650, 2);
-        //Check which bars are possible
         if(bar1>50||bar1<38){bar1=-1;}
         if(bar2>50||bar2<38){bar2=-1;}
         if(bar3>50||bar3<38){bar3=-1;}
-        //set the slide to the correct position
         if(bar1 > bar2 && bar1 > bar3){
-            layerCake.setSlidePosition(Constants.LOW_POSITION);
+            layerCake.setSlidePosition(Constants.HIGH_POSITION);
         }else if(bar2 > bar3){
             layerCake.setSlidePosition(Constants.MID_POSITION);
         }else{
-            layerCake.setSlidePosition(Constants.HIGH_POSITION);
+            layerCake.setSlidePosition(Constants.LOW_POSITION);
         }
-        //move up to the shipping hub
-        layerCake.forwardDrive(0.5, 800, 4);
+        layerCake.forwardDrive(0.5, 850, 4);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
+        layerCake.forwardDrive(-0.5);
         layerCake.forwardDrive(0.5, -1000, 5);
-        layerCake.strafeRight(0.5, -2000, 10);
+        layerCake.strafeRight(0.5, 2000, 10);
         layerCake.stopDrive();
         currentStep = "Waiting";
         layerCake.setSlidePosition(0);
