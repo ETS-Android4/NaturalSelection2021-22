@@ -32,8 +32,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Full Auto Blue")
-public class LayerCake_V4_blue extends LinearOpMode {
+@Autonomous(name = "Full Auto Red")
+public class LayerCake_V4_red extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -64,47 +64,46 @@ public class LayerCake_V4_blue extends LinearOpMode {
         //moves away from wall
         sleep(50);
         layerCake.forwardDrive(0.2,250,2);
-        layerCake.strafeRight(0.2);
+        layerCake.strafeRight(-0.2);
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         //moves towards spinner
-        while(layerCake.getRightDistance() > 6) {}
+        while(layerCake.getLeftDistance() > 6) {}
         layerCake.forwardDrive(-0.2);
         while(layerCake.getBackDistance() > 24.5 && runtime.seconds() < 7) {}
         layerCake.stopDrive();
-        layerCake.spinnerPower(-1);
+        layerCake.spinnerPower(1);
         sleep(3000);
         layerCake.spinnerPower(0);
         layerCake.forwardDrive(0.2);
         while(layerCake.getBackDistance() < 65 && runtime.seconds() < 13) {}
-        layerCake.strafeRight(-0.1);
-        while(layerCake.getRightDistance() < 35 && runtime.seconds() < 16) {}
+        layerCake.strafeRight(0.1);
+        while(layerCake.getLeftDistance() < 35 && runtime.seconds() < 16) {}
         layerCake.stopDrive();
         sleep(50);
-        barScan = layerCake.getLeftDistance();
+        barScan = layerCake.getRightDistance();
         sleep(50);
-        layerCake.rotateLeft(0.5,Constants.FULL_SPIN/4,2);
+        layerCake.rotateLeft(0.5,-Constants.FULL_SPIN/4,2);
         //set the slide to the correct position
         if(barScan < Constants.BAR_1_MAX){
-            layerCake.setSlidePosition(Constants.HIGH_POSITION);
+            layerCake.setSlidePosition(Constants.LOW_POSITION);
         }else if(barScan >= Constants.BAR_1_MAX && barScan <= Constants.BAR_2_MAX){
             layerCake.setSlidePosition(Constants.MID_POSITION);
         }else{
-            layerCake.setSlidePosition(Constants.LOW_POSITION);
+            layerCake.setSlidePosition(Constants.HIGH_POSITION);
         }
-        layerCake.strafeRight(0.5, 400, 3);
+        layerCake.strafeRight(0.5, -400, 3);
         //move up to the shipping hub
         layerCake.forwardDrive(0.5, 850, 4);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
-        layerCake.strafeRight(0.5, -1750, 10);
+        layerCake.strafeRight(0.5, 1750, 10);
         layerCake.forwardDrive(0.5, 2500, 10);
         layerCake.setSlidePosition(0);
-        layerCake.rotateLeft(0.5, -Constants.FULL_SPIN/4, 10);
+        layerCake.rotateLeft(0.5, Constants.FULL_SPIN/4, 10);
         layerCake.stopDrive();
         currentStep = "Waiting";
-
         sleep(1000);
 
     }
