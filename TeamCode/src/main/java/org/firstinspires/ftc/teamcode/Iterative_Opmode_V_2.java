@@ -59,16 +59,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Iterative_Opmode_V_2 extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor frontLeft = null;
-    private DcMotor frontRight = null;
-    private DcMotor backLeft = null;
-    private DcMotor backRight = null;
-    private DcMotor spin = null;
-    private DcMotor slides = null;
-    private DcMotor intake = null;
-    private DistanceSensor distLeft = null;
-    private DistanceSensor distRight = null;
-    private DistanceSensor distBack = null;
+    private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private DcMotor spin, slides, intake;
+    private DistanceSensor distLeft, distRight, distBack;
     private DigitalChannel magSwitch = null;
 //    private Thread slideZeroer = new Thread(){
 //        @Override
@@ -160,21 +153,22 @@ public class Iterative_Opmode_V_2 extends OpMode {
     @Override
     public void loop() {
         //do stick position things(I know its bad but its ok and it works)
-        double stickX = -gamepad1.left_stick_x;
-        double stickY = gamepad1.left_stick_y;
-        double rotatedX = (stickX * Math.cos(Math.PI / 4)) - (stickY * Math.sin(Math.PI / 4));
-        double rotatedY = (stickY * Math.cos(Math.PI / 4)) + (stickX * Math.sin(Math.PI / 4));
-        double rotation = gamepad1.left_trigger - gamepad1.right_trigger;
+        double stickX = gamepad1.left_stick_x;
+        double stickY = -gamepad1.left_stick_y;
+        double rotatedX = (stickX * Math.cos(Math.PI / 4));
+        double rotatedY = (stickY * Math.cos(Math.PI / 4));
+
+        double x_prime = rotatedX - rotatedY;
+        double y_prime = rotatedX + rotatedY;
 
         //do math to it
         if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH) {
-            frontLeft.setPower(rotatedY);
-            backRight.setPower(-rotatedY);
-            frontRight.setPower(rotatedX);
-            backLeft.setPower(-rotatedX);
-        } else if (Math.abs(rotation) > Constants.STICK_THRESH) {
-            turnLeft(rotation*0.9);
-        }else {
+            frontLeft.setPower(y_prime + gamepad1.right_stick_x);
+            backRight.setPower(-y_prime + gamepad1.right_stick_x);
+            frontRight.setPower(x_prime + gamepad1.right_stick_x);
+            backLeft.setPower(-x_prime + gamepad1.right_stick_x);
+        }
+        else {
             stopDrive();
         }
         //ducky thingy
