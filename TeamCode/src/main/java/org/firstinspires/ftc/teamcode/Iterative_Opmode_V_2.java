@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -38,6 +39,9 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
@@ -61,6 +65,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private DcMotor spin, slides, intake;
+    private BNO055IMU imu;
+    BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     private DistanceSensor distLeft, distRight, distBack;
     private DigitalChannel magSwitch = null;
 //    private Thread slideZeroer = new Thread(){
@@ -87,12 +93,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
         spin = hardwareMap.get(DcMotor.class, "spin");
         slides = hardwareMap.get(DcMotor.class, "slides");
         intake = hardwareMap.get(DcMotor.class, "nom");
+        imu = hardwareMap.get(BNO055IMU.class, "imu 1");
+
+        imu.initialize(parameters);
 
         // Reverse the motor that runs backwards when connected directly to the battery
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
         spin.setDirection(DcMotorSimple.Direction.FORWARD);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -152,21 +161,43 @@ public class Iterative_Opmode_V_2 extends OpMode {
      */
     @Override
     public void loop() {
+        double theta = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
+        double thetaPrime = theta * Math.sqrt(2) / 2;
+        double thetaPrimeComp = Math.PI / 2 - thetaPrime;
         //do stick position things(I know its bad but its ok and it works)
         double stickX = gamepad1.left_stick_x;
         double stickY = -gamepad1.left_stick_y;
-        double rotatedX = (stickX * Math.cos(Math.PI / 4));
-        double rotatedY = (stickY * Math.cos(Math.PI / 4));
 
-        double x_prime = rotatedX - rotatedY;
-        double y_prime = rotatedX + rotatedY;
+        double comp1 = (stickX * Math.sin(Math.PI / 4));
+        double comp2 = (stickY * Math.cos(Math.PI / 4));
+
+
+
+        double rotation = gamepad1.right_trigger - gamepad1.left_trigger;
+
+// Theta conversion to vector form
+// Take in base input theta and set vector theta --> v_x is your x axis v_y is your y-axis
+ double v_x = (Math.cos(theta));
+ double v_y = (Math.sin(theta));
+ double v_y_prime = (Math.sqrt(2) / 2) * (v_y);
+ double v_x_prime = (Math.sqrt(2) / 2) * (v_x);
+ double v_x_comp = (Math.PI/2 - v_x_prime);
+ double v_y_comp = (Math.PI/2 - v_y_prime);
+ double v_x_rotation_matrix = (Math.cos(v_x_comp));
+ double v_y_rotation_matrix = (Math.sin(v_y_comp));
+ double v_y_final =  v_y_rotation_matrix * v_y_prime;
+ double v_x_final =  v_x_rotation_matrix * v_x_prime;
+
+        double x_prime = (comp1 - comp2);
+        double y_prime = (comp1 + comp2);
+        double left_stick_dist = Math.sqrt((stickX * stickX) + (stickY * stickY));
 
         //do math to it
-        if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH) {
-            frontLeft.setPower(y_prime + gamepad1.right_stick_x);
-            backRight.setPower(-y_prime + gamepad1.right_stick_x);
-            frontRight.setPower(x_prime + gamepad1.right_stick_x);
-            backLeft.setPower(-x_prime + gamepad1.right_stick_x);
+        if (left_stick_dist > Constants.STICK_THRESH || Math.abs(rotation) > .05) {
+            frontLeft.setPower(v_y_final + rotation);
+            backRight.setPower(-v_y_final + rotation);
+            frontRight.setPower(v_x_final + rotation);
+            backLeft.setPower(-v_x_final + rotation);
         }
         else {
             stopDrive();
@@ -212,11 +243,12 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
-        telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
-        telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
-        telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
-        telemetry.addData("FL: ", frontLeft.getCurrentPosition());
-        telemetry.addData("Switch: ", magSwitch.getState());
+        telemetry.addData("Distance on the left(cm) ", distLeft.getDistance(DistanceUnit.CM));
+        telemetry.addData("Distance on the right(cm) ", distRight.getDistance(DistanceUnit.CM));
+        telemetry.addData("Distance on the back(cm) ", distBack.getDistance(DistanceUnit.CM));
+        telemetry.addData("FL ", frontLeft.getCurrentPosition());
+        telemetry.addData("Switch ", magSwitch.getState());
+        telemetry.addData("imu ", theta);
 
     }
 
