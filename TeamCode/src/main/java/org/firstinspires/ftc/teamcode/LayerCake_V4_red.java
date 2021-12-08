@@ -82,6 +82,7 @@ public class LayerCake_V4_red extends LinearOpMode {
         sleep(50);
         barScan = layerCake.getRightDistance();
         sleep(50);
+        layerCake.strafeRight(0.3,-200,1);
         layerCake.rotateLeft(0.5,-Constants.FULL_SPIN/4,2);
         //set the slide to the correct position
         if(barScan < Constants.BAR_1_MAX){
@@ -93,7 +94,7 @@ public class LayerCake_V4_red extends LinearOpMode {
         }
         layerCake.strafeRight(0.5, -400, 3);
         //move up to the shipping hub
-        layerCake.forwardDrive(0.5, 850, 4);
+        layerCake.forwardDrive(0.5, 1050, 4);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);

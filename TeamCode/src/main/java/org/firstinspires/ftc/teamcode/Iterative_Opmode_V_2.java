@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,6 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -70,7 +72,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private DigitalChannel magSwitch = null;
-//    private Thread slideZeroer = new Thread(){
+    private BNO055IMU imu = null;
+    private Orientation lastAngles = new Orientation();
+    //    private Thread  slideZeroer = new Thread(){
 //        @Override
 //        public void run() {
 //
@@ -95,6 +99,16 @@ public class Iterative_Opmode_V_2 extends OpMode {
         slides = hardwareMap.get(DcMotor.class, "slides");
         intake = hardwareMap.get(DcMotor.class, "nom");
 
+        imu = hardwareMap.get(BNO055IMU.class, "imu 1");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.RADIANS;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        imu.initialize(parameters);
         // Reverse the motor that runs backwards when connected directly to the battery
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
@@ -160,21 +174,29 @@ public class Iterative_Opmode_V_2 extends OpMode {
     @Override
     public void loop() {
         //do stick position things(I know its bad but its ok and it works)
-        double stickX = -gamepad1.left_stick_x;
-        double stickY = gamepad1.left_stick_y;
-        double rotatedX = (stickX * Math.cos(Math.PI / 4)) - (stickY * Math.sin(Math.PI / 4));
-        double rotatedY = (stickY * Math.cos(Math.PI / 4)) + (stickX * Math.sin(Math.PI / 4));
+        double stickX = gamepad1.left_stick_x;
+        double stickY = -gamepad1.left_stick_y;
+        double angle =  imu.getAngularOrientation().firstAngle-Math.PI/2;
+        double rotatedX = (stickX * Math.cos(Math.PI / 4 + angle)) + (stickY * Math.sin(Math.PI / 4 + angle));
+        double rotatedY = (stickY * Math.cos(Math.PI / 4 + angle)) - (stickX * Math.sin(Math.PI / 4 + angle));
         double rotation = gamepad1.left_trigger - gamepad1.right_trigger;
 
+        boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
+        boolean areSticksMoved = Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH;
         //do math to it
-        if (Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH) {
-            frontLeft.setPower(rotatedY);
-            backRight.setPower(-rotatedY);
-            frontRight.setPower(rotatedX);
-            backLeft.setPower(-rotatedX);
-        } else if (Math.abs(rotation) > Constants.STICK_THRESH) {
-            turnLeft(rotation*0.9);
-        }else {
+        if (areSticksMoved || areTriggersDown) {
+            double flPower = -rotatedY + rotation;
+            double brPower = rotatedY + rotation;
+            double frPower = -rotatedX + rotation;
+            double blPower = rotatedX + rotation;
+            double motorMax = Math.max(Math.max(Math.abs(flPower), Math.abs(brPower)), Math.max(Math.abs(frPower), Math.abs(blPower)));
+            double proportion = Math.max(1, motorMax);
+
+            frontLeft.setPower(flPower / proportion);
+            backRight.setPower(brPower / proportion);
+            frontRight.setPower(frPower / proportion);
+            backLeft.setPower(blPower / proportion);
+        } else {
             stopDrive();
         }
         //ducky thingy
@@ -197,7 +219,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //slides
         //if(!slideZeroer.isAlive()) {
             if (gamepad2.dpad_up) {
-                slidesTarget = Constants.HIGH_POSITION;
+                slidesTarget = Constants.HIGH_POSITION+50;
             } else if (gamepad2.dpad_right) {
                 slidesTarget = Constants.MID_POSITION;
             } else if (gamepad2.dpad_left) {

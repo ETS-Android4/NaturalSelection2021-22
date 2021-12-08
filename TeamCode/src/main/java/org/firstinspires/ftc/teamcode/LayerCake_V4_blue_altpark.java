@@ -67,7 +67,7 @@ public class LayerCake_V4_blue_altpark extends LinearOpMode {
         layerCake.strafeRight(0.2);
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         //moves towards spinner
-        while(layerCake.getRightDistance() > 6) {}
+        while(layerCake.getRightDistance() > 5 && runtime.seconds() < 5) {}
         layerCake.forwardDrive(-0.2);
         while(layerCake.getBackDistance() > 24.5 && runtime.seconds() < 7) {}
         layerCake.stopDrive();
@@ -82,6 +82,7 @@ public class LayerCake_V4_blue_altpark extends LinearOpMode {
         sleep(50);
         barScan = layerCake.getLeftDistance();
         sleep(50);
+        layerCake.strafeRight(0.3,200,1);
         layerCake.rotateLeft(0.5,Constants.FULL_SPIN/4,2);
         //set the slide to the correct position
         if(barScan < Constants.BAR_1_MAX){
@@ -93,14 +94,14 @@ public class LayerCake_V4_blue_altpark extends LinearOpMode {
         }
         layerCake.strafeRight(0.5, 400, 3);
         //move up to the shipping hub
-        layerCake.forwardDrive(0.5, 850, 4);
+        layerCake.forwardDrive(0.5, 1050, 4);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
-        layerCake.forwardDrive(0.5, -800, 4);
+       layerCake.forwardDrive(0.5, -1200, 4);
         layerCake.setSlidePosition(0);
-        layerCake.forwardDrive(0.5, 400, 2);
+        layerCake.strafeRight(0.5, -400, 2);
         layerCake.stopDrive();
         currentStep = "Waiting";
 
