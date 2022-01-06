@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -50,6 +51,7 @@ public class RobotHardware {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
+    private BNO055IMU imu = null;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
 
@@ -117,18 +119,29 @@ public class RobotHardware {
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
+
+        //imu
+        imu = hardwareMap.get(BNO055IMU.class, "imu 1");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+        imu.initialize(parameters);
     }
 
     public void spinnerPower(double power) {
         spin.setPower(power);
     }
-    public void initSlides(){
+
+    public void initSlides() {
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setTargetPosition(0);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
     }
-    public void setSlidePosition(int pos){
+
+    public void setSlidePosition(int pos) {
         slides.setTargetPosition(pos);
     }
 
@@ -181,22 +194,22 @@ public class RobotHardware {
         stopDrive();
     }
 
-    public double getLeftDistance(){
+    public double getLeftDistance() {
         return distLeft.getDistance(DistanceUnit.CM);
     }
 
-    public double getRightDistance(){
+    public double getRightDistance() {
         return distRight.getDistance(DistanceUnit.CM);
     }
 
-    public double getBackDistance(){
+    public double getBackDistance() {
         return distBack.getDistance(DistanceUnit.CM);
     }
 
-    public void output(boolean on){
-        if(on) {
+    public void output(boolean on) {
+        if (on) {
             intake.setPower(Constants.OUTPUT_POWER);
-        }else{
+        } else {
             intake.setPower(0);
         }
     }
@@ -288,6 +301,74 @@ public class RobotHardware {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+    }
+
+    public void moveByAngle(double angle, double distance, double targetRotation, double power, double timeout) {
+        //timer
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        //get movement direction in rads
+        double newAngle = Math.toRadians(angle + 90);
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //get start angle
+        double startAngle = imu.getAngularOrientation().firstAngle;
+        //get components of original vector
+        double xComponent = Math.cos(newAngle);
+        double yComponent = Math.sin(newAngle);
+        //rotate vector 45 degrees
+        double rotatedX = (xComponent * Math.cos(Math.PI / 4)) - (yComponent * Math.sin(Math.PI / 4));
+        double rotatedY = (yComponent * Math.cos(Math.PI / 4)) + (xComponent * Math.sin(Math.PI / 4));
+        //get rotation angle in rads
+        double targetRotationRad = Math.toRadians(targetRotation);
+        //get needed rotation
+        double rotation = targetRotationRad - startAngle;
+        //get rotation between -360 and 360 degrees
+        while(rotation > Math.PI*2){
+            rotation -= Math.PI *2;
+        }
+        while(rotation < -Math.PI*2){
+            rotation += Math.PI*2;
+        }
+        //make sure turn direction is correct
+        if (rotation < -Math.PI) {
+            rotation = Math.PI * 2 + rotation;
+        }
+        if (rotation > Math.PI) {
+            rotation = -Math.PI * 2 + rotation;
+        }
+        //get the number of encoder counts for the target rotation
+        double rotationInEncoderCounts = (rotation / (2 * Math.PI)) * Constants.FULL_SPIN;
+        //setup target positions for each wheel
+        double flTarget = (-rotatedY * distance) + rotationInEncoderCounts;
+        double brTarget = (rotatedY * distance) + rotationInEncoderCounts;
+        double frTarget = (-rotatedX * distance) + rotationInEncoderCounts;
+        double blTarget = (rotatedX * distance) + rotationInEncoderCounts;
+        //set target positions
+        frontLeft.setTargetPosition((int) flTarget);
+        backRight.setTargetPosition((int) brTarget);
+        frontRight.setTargetPosition((int) frTarget);
+        backLeft.setTargetPosition((int) blTarget);
+        //prep motors
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //make powers less than 1
+        double proportion = Math.max(Math.max(Math.abs(flTarget), Math.abs(brTarget)), Math.max(Math.abs(frTarget), Math.abs(blTarget)));
+        //set the powers
+        frontLeft.setPower(power * flTarget / proportion);
+        frontRight.setPower(power * frTarget / proportion);
+        backLeft.setPower(power * blTarget / proportion);
+        backRight.setPower(power * brTarget / proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {}
+        //end the path
+        stopDrive();
     }
 }
 
