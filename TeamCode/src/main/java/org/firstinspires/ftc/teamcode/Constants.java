@@ -10,7 +10,8 @@ public class Constants {
     public static int BAR_1_MAX = 12;
     public static int BAR_2_MAX = 35;
     public static double INTAKE_POWER = -1;
-    public static double OUTPUT_POWER = 0.75;
+    public static double OUTPUT_POWER = 0.25;
     public static double SLIDE_POWER = 1;
-
+    public static double BOX_CLOSED = 0.94;
+    public static double BOX_OPEN = 0.80;
 }
