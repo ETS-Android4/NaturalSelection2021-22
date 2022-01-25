@@ -206,14 +206,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
         }else{
             spin.setPower(0);
         }
-        //intake
-        if (gamepad2.left_bumper) {
-            intake.setPower(Constants.INTAKE_POWER);
-        } else if (gamepad2.right_bumper) {
-            intake.setPower(Constants.OUTPUT_POWER);
-        } else {
-            intake.setPower(0);
-        }
         //slides
         if (gamepad2.dpad_up) {
             slidesTarget = Constants.HIGH_POSITION+50;
@@ -238,14 +230,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-        boxTest += gamepad2.left_stick_y *0.01;
-        if(gamepad2.right_trigger>Constants.STICK_THRESH&& slides.getCurrentPosition()>=300){
+
+        //intake and output
+        if(gamepad2.right_bumper && slides.getCurrentPosition()>=300){
             boxDoor.setPosition(Constants.BOX_OPEN);
-        }
-        if(gamepad2.left_trigger>Constants.STICK_THRESH){
-            boxDoor.setPosition(Constants.BOX_CLOSED);
-        }
-        if(slides.getCurrentPosition()<=300) {
+            intake.setPower(Constants.INTAKE_POWER);
+        }else if (gamepad2.left_bumper){
+            intake.setPower(Constants.INTAKE_POWER);
+        }else {
+            intake.setPower(0);
             boxDoor.setPosition(Constants.BOX_CLOSED);
         }
         //telemetry
@@ -254,7 +247,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
         telemetry.addData("FL: ", frontLeft.getCurrentPosition());
-        telemetry.addData("boxTest: ", boxTest);
         telemetry.addData("Angle: ", imu.getAngularOrientation().firstAngle);
     }
 
