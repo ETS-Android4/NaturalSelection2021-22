@@ -217,7 +217,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slidesTarget = Constants.LOW_POSITION;
             boxDoor.setPosition(Constants.BOX_CLOSED);
         } else if (gamepad2.dpad_down) {
-            slidesTarget = 0;
+            slidesTarget = Constants.INTAKE_POSITION;
             boxDoor.setPosition(Constants.BOX_CLOSED);
         }
         //manual adjustments to slide positions
