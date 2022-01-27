@@ -75,7 +75,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DigitalChannel magSwitch = null;
     private BNO055IMU imu = null;
     private Servo boxDoor = null;
-    private int slidesTarget = 0;
+    private int slidesTarget = Constants.INTAKE_POSITION;
     private double boxTest = 0.5;
 
 
@@ -141,7 +141,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         boxDoor = hardwareMap.get(Servo.class, "boxDoor");
         //init slides
         boxDoor.setPosition(Constants.BOX_CLOSED);
-        slides.setTargetPosition(0);
+        slides.setTargetPosition(slidesTarget);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
         // Tell the driver that initialization is complete.
@@ -234,7 +234,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //intake and output
         if(gamepad2.right_bumper && slides.getCurrentPosition()>=300){
             boxDoor.setPosition(Constants.BOX_OPEN);
-            intake.setPower(Constants.INTAKE_POWER);
+            intake.setPower(Constants.OUTPUT_POWER);
         }else if (gamepad2.left_bumper){
             intake.setPower(Constants.INTAKE_POWER);
         }else {
