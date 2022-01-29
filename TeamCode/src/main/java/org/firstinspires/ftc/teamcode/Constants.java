@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
 public class Constants {
-    public static int  INTAKE_POSITION = 50;
-    public static int  LOW_POSITION = 500;
-    public static int MID_POSITION = 1500;
-    public static int HIGH_POSITION = 2100;
-    public static int SLIDE_MAX = 2200;
-    public static double STICK_THRESH = 0.2;
-    public static int FULL_SPIN = 2000;
-    public static int BAR_1_MAX = 12;
-    public static int BAR_2_MAX = 35;
-    public static double INTAKE_POWER = -1;
-    public static double OUTPUT_POWER = 0.25;
-    public static double SLIDE_POWER = 1;
-    public static double BOX_CLOSED = 0.95;
-    public static double BOX_OPEN = 0.89;
+    public static final int  INTAKE_POSITION = 50;
+    public static final int  LOW_POSITION = 500;
+    public static final int MID_POSITION = 1500;
+    public static final int HIGH_POSITION = 2100;
+    public static final int SLIDE_MAX = 2200;
+    public static final double STICK_THRESH = 0.2;
+    public static final int FULL_SPIN = 2000;
+    public static final int BAR_1_MAX = 12;
+    public static final int BAR_2_MAX = 35;
+    public static final double INTAKE_POWER = -1;
+    public static final double OUTPUT_POWER = 0.25;
+    public static final double SLIDE_POWER = 1;
+    public static final double BOX_CLOSED = 0.965;
+    public static final double BOX_OPEN = 0.885;
+    public static final double ROTATION_SENSITIVITY = 0.5;
 }

@@ -34,10 +34,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.vision.ShippingElementPipeline;
+import org.opencv.core.Point;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 public class RobotHardware {
     /* Public OpMode members. */
@@ -52,6 +58,8 @@ public class RobotHardware {
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private BNO055IMU imu = null;
+    private OpenCvWebcam webcam;
+    private ShippingElementPipeline pipeline;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
 
@@ -128,10 +136,34 @@ public class RobotHardware {
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
+
+        //init camera
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        pipeline = new ShippingElementPipeline();
+        webcam.setPipeline(pipeline);
+        webcam.setMillisecondsPermissionTimeout(2500);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                // This will be called if the camera could not be opened
+            }
+        });
+
+
     }
 
     public void spinnerPower(double power) {
         spin.setPower(power);
+    }
+
+    public Point getGreenPoint(){
+        return pipeline.getPoint();
     }
 
     public void initSlides() {
@@ -144,7 +176,7 @@ public class RobotHardware {
     public void setSlidePosition(int pos) {
         slides.setTargetPosition(pos);
     }
-
+    @Deprecated
     public void rotateLeft(double power, double timeout) {
         ElapsedTime timer = new ElapsedTime();
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -164,7 +196,7 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
+    @Deprecated
     public void rotateLeft(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -213,7 +245,7 @@ public class RobotHardware {
             intake.setPower(0);
         }
     }
-
+    @Deprecated
     public void forwardDrive(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -225,7 +257,7 @@ public class RobotHardware {
         backLeft.setPower(-power);
         backRight.setPower(power);
     }
-
+    @Deprecated
     public void forwardDrive(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -254,7 +286,7 @@ public class RobotHardware {
         }
         stopDrive();
     }
-
+    @Deprecated
     public void strafeRight(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -266,7 +298,7 @@ public class RobotHardware {
         backLeft.setPower(power);
         backRight.setPower(power);
     }
-
+    @Deprecated
     public void strafeRight(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -303,7 +335,7 @@ public class RobotHardware {
         backRight.setPower(0);
     }
 
-    public void moveByAngle(double angle, double distance, double targetRotation, double power, double timeout) {
+    public void driveByAngle(double angle, double distance, double targetRotation, double power, double timeout) {
         //timer
         ElapsedTime timer = new ElapsedTime();
         timer.reset();

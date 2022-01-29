@@ -178,7 +178,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         double rotatedX = (stickX * Math.cos(Math.PI / 4 - angle)) - (stickY * Math.sin(Math.PI / 4 - angle));
         double rotatedY = (stickY * Math.cos(Math.PI / 4 - angle)) + (stickX * Math.sin(Math.PI / 4 - angle));
         //determine how much the robot should turn
-        double rotation = gamepad1.left_trigger - gamepad1.right_trigger;
+        double rotation = gamepad1.left_trigger - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
         //test if the robot should move
         boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
         boolean areSticksMoved = Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH;
@@ -232,12 +232,17 @@ public class Iterative_Opmode_V_2 extends OpMode {
         }
 
         //intake and output
-        if(gamepad2.right_bumper && slides.getCurrentPosition()>=300){
+        if(gamepad2.right_bumper && slides.getCurrentPosition()>=Constants.LOW_POSITION - 100){
             boxDoor.setPosition(Constants.BOX_OPEN);
             intake.setPower(Constants.OUTPUT_POWER);
         }else if (gamepad2.left_bumper){
             intake.setPower(Constants.INTAKE_POWER);
-        }else {
+        }else if(gamepad1.right_bumper){
+            boxDoor.setPosition(Constants.BOX_OPEN);
+            intake.setPower(Constants.OUTPUT_POWER);
+        }else if(gamepad1.left_bumper){
+            intake.setPower(Constants.INTAKE_POWER);
+        } else {
             intake.setPower(0);
             boxDoor.setPosition(Constants.BOX_CLOSED);
         }

@@ -37,22 +37,21 @@ public class LayerCakeTest extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
-    private String currentStep = "waiting for start";
-    private double bar1 = 0;//high
-    private double bar2 = 0;//middle
-    private double bar3 = 0;//low
     ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() {
         layerCake.init(hardwareMap);
         layerCake.initSlides();
+        telemetry.addData("Status: ", "OK");
+        telemetry.update();
         waitForStart();
-        layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.moveByAngle(0,1000,0,0.5,5);
-        layerCake.moveByAngle(-45,1000,0,0.5,5);
-        layerCake.moveByAngle(45,1000,180,0.5,5);
-        layerCake.moveByAngle(180,1000,270,0.5,5);
-        layerCake.setSlidePosition(0);
+        runtime.reset();
+        while(runtime.seconds() < 30 && opModeIsActive()){
+            telemetry.addData("Runtime(s): ", runtime.seconds());
+            telemetry.addData("Green Point: ", layerCake.getGreenPoint().x + ", "+ layerCake.getGreenPoint().y);
+            telemetry.update();
+        }
+        layerCake.driveByAngle(90,500,0,1,5);
     }
 
 }
