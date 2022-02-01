@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.vision.ShippingElementPipeline;
@@ -70,11 +71,11 @@ public class RobotHardware {
     }
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap) {
+    public void init(HardwareMap ahwMap,Telemetry telemetry) {
         // Save reference to Hardware map
         hardwareMap = ahwMap;
 
-        // Define and Initialize Motors
+        // Define and initialize motors
         frontLeft = hardwareMap.get(DcMotor.class, "fl");
         frontRight = hardwareMap.get(DcMotor.class, "fr");
         backRight = hardwareMap.get(DcMotor.class, "br");
@@ -82,7 +83,7 @@ public class RobotHardware {
         spin = hardwareMap.get(DcMotor.class, "spin");
         slides = hardwareMap.get(DcMotor.class, "slides");
         intake = hardwareMap.get(DcMotor.class, "nom");
-
+        //set the direction of each motor
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
@@ -90,14 +91,14 @@ public class RobotHardware {
         spin.setDirection(DcMotorSimple.Direction.FORWARD);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
-
+        //set zero power behaviors for each motor
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set all motors to zero power
         frontLeft.setPower(0);
@@ -108,8 +109,7 @@ public class RobotHardware {
         slides.setPower(0);
         intake.setPower(0);
 
-        // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
+        // Reset all encoders and set the motors to run using the encoders
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -123,12 +123,12 @@ public class RobotHardware {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        //setup sensors
+        //define and initialize sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
 
-        //imu
+        //define and initialize imu
         imu = hardwareMap.get(BNO055IMU.class, "imu 1");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -137,7 +137,7 @@ public class RobotHardware {
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
 
-        //init camera
+        //initialize the camera
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new ShippingElementPipeline();
@@ -147,6 +147,8 @@ public class RobotHardware {
             @Override
             public void onOpened() {
                 webcam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                telemetry.addData("Camera:", "ready");
+                telemetry.update();
             }
 
             @Override
@@ -155,14 +157,13 @@ public class RobotHardware {
             }
         });
 
-
     }
 
     public void spinnerPower(double power) {
         spin.setPower(power);
     }
 
-    public Point getGreenPoint(){
+    public Point getGreenPoint() {
         return pipeline.getPoint();
     }
 
@@ -176,6 +177,7 @@ public class RobotHardware {
     public void setSlidePosition(int pos) {
         slides.setTargetPosition(pos);
     }
+
     @Deprecated
     public void rotateLeft(double power, double timeout) {
         ElapsedTime timer = new ElapsedTime();
@@ -196,6 +198,7 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
     @Deprecated
     public void rotateLeft(double power, int position, double timeout) {
         //TIMER :)
@@ -245,6 +248,7 @@ public class RobotHardware {
             intake.setPower(0);
         }
     }
+
     @Deprecated
     public void forwardDrive(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -257,6 +261,7 @@ public class RobotHardware {
         backLeft.setPower(-power);
         backRight.setPower(power);
     }
+
     @Deprecated
     public void forwardDrive(double power, int position, double timeout) {
         //TIMER :)
@@ -286,6 +291,7 @@ public class RobotHardware {
         }
         stopDrive();
     }
+
     @Deprecated
     public void strafeRight(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -298,6 +304,7 @@ public class RobotHardware {
         backLeft.setPower(power);
         backRight.setPower(power);
     }
+
     @Deprecated
     public void strafeRight(double power, int position, double timeout) {
         //TIMER :)
@@ -359,11 +366,11 @@ public class RobotHardware {
         //get needed rotation
         double rotation = targetRotationRad - startAngle;
         //get rotation between -360 and 360 degrees
-        while(rotation > Math.PI*2){
-            rotation -= Math.PI *2;
+        while (rotation > Math.PI * 2) {
+            rotation -= Math.PI * 2;
         }
-        while(rotation < -Math.PI*2){
-            rotation += Math.PI*2;
+        while (rotation < -Math.PI * 2) {
+            rotation += Math.PI * 2;
         }
         //make sure turn direction is correct
         if (rotation < -Math.PI) {
@@ -398,7 +405,8 @@ public class RobotHardware {
         backRight.setPower(power * brTarget / proportion);
         //wait until the motors finish or time expires
         //noinspection StatementWithEmptyBody
-        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {}
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+        }
         //end the path
         stopDrive();
     }

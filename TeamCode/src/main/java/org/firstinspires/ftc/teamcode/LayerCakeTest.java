@@ -40,7 +40,7 @@ public class LayerCakeTest extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() {
-        layerCake.init(hardwareMap);
+        layerCake.init(hardwareMap, telemetry);
         layerCake.initSlides();
         telemetry.addData("Status: ", "OK");
         telemetry.update();
@@ -48,7 +48,7 @@ public class LayerCakeTest extends LinearOpMode {
         runtime.reset();
         while(runtime.seconds() < 30 && opModeIsActive()){
             telemetry.addData("Runtime(s): ", runtime.seconds());
-            telemetry.addData("Green Point: ", layerCake.getGreenPoint().x + ", "+ layerCake.getGreenPoint().y);
+            telemetry.addData("Green Point(x): ", layerCake.getGreenPoint().x);
             telemetry.update();
         }
         layerCake.driveByAngle(90,500,0,1,5);

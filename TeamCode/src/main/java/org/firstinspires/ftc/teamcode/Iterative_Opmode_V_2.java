@@ -200,9 +200,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
         }
         //duck spinner
         if (gamepad2.a) {
-            spin.setPower(1);
+            spin.setPower(Constants.DUCK_POWER);
         } else if(gamepad2.b){
-            spin.setPower(-1);
+            spin.setPower(-Constants.DUCK_POWER);
         }else{
             spin.setPower(0);
         }

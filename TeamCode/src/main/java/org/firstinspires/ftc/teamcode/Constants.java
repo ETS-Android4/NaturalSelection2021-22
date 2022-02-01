@@ -16,4 +16,5 @@ public class Constants {
     public static final double BOX_CLOSED = 0.965;
     public static final double BOX_OPEN = 0.885;
     public static final double ROTATION_SENSITIVITY = 0.5;
+    public static final double DUCK_POWER = 0.5;
 }

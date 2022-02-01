@@ -45,7 +45,7 @@ public class LayerCake_V3_blue extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() {
-        layerCake.init(hardwareMap);
+        layerCake.init(hardwareMap,telemetry);
         Thread telemetryHandler = new Thread() {
             @Override
             public void run() {
