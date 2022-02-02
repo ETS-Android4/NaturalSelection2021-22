@@ -138,6 +138,8 @@ public class RobotHardware {
         imu.initialize(parameters);
 
         //initialize the camera
+        telemetry.addData("Camera status:", "waiting");
+        telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new ShippingElementPipeline();
@@ -146,8 +148,8 @@ public class RobotHardware {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
-                telemetry.addData("Camera:", "ready");
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                telemetry.addData("Camera status:", "initialized");
                 telemetry.update();
             }
 
@@ -340,6 +342,10 @@ public class RobotHardware {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+    }
+
+    public double getAngle(){
+        return imu.getAngularOrientation().firstAngle;
     }
 
     public void driveByAngle(double angle, double distance, double targetRotation, double power, double timeout) {

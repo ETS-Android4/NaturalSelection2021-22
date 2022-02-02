@@ -17,4 +17,6 @@ public class Constants {
     public static final double BOX_OPEN = 0.885;
     public static final double ROTATION_SENSITIVITY = 0.5;
     public static final double DUCK_POWER = 0.5;
+    public static final int CAM_WIDTH = 640;
+    public static final int CAM_HEIGHT = 480;
 }
