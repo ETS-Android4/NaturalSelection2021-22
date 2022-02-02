@@ -64,8 +64,17 @@ public class NewLayerCakeAuto_V1 extends LinearOpMode {
         telemetryHandler.start();
         currentStep = "scanning code";
         elementCenter = layerCake.getGreenPoint().x;
-
-        layerCake.driveByAngle(90,500,0,1,5);
+        currentStep = "going to duck";
+        while (opModeIsActive()){}
+//        layerCake.driveByAngleEncoder(0,100,0,1,2);
+//        layerCake.driveByAngleSensor(-90,0.5,2,5);
+//        currentStep = "spinning duck";
+//        layerCake.spinnerPower(Constants.DUCK_POWER);
+//        sleep(1000);
+//        layerCake.spinnerPower(0);
+//        layerCake.driveByAngleEncoder(0,0,45,1,0.5);
+//        layerCake.driveByAngleEncoder(45,1000,45,1,5);
+//        layerCake.driveByAngleEncoder(90,500,0,1,5);
     }
 
 }

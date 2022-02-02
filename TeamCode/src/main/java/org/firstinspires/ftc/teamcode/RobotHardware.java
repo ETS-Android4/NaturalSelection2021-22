@@ -348,7 +348,7 @@ public class RobotHardware {
         return imu.getAngularOrientation().firstAngle;
     }
 
-    public void driveByAngle(double angle, double distance, double targetRotation, double power, double timeout) {
+    public void driveByAngleEncoder(double angle, double distance, double targetRotation, double power, double timeout) {
         //timer
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
@@ -415,6 +415,61 @@ public class RobotHardware {
         }
         //end the path
         stopDrive();
+    }
+    //Sensors:
+    //0: Back
+    //1: Left
+    //2: Right
+    public void driveByAngleSensor(double angle, double power, int sensor, double distance) {
+        //timer
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        //get movement direction in rads
+        double newAngle = Math.toRadians(angle + 90);
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //get start angle
+        double startAngle = imu.getAngularOrientation().firstAngle;
+        //get components of original vector
+        double xComponent = Math.cos(newAngle);
+        double yComponent = Math.sin(newAngle);
+        //rotate vector 45 degrees
+        double rotatedX = (xComponent * Math.cos(Math.PI / 4)) - (yComponent * Math.sin(Math.PI / 4));
+        double rotatedY = (yComponent * Math.cos(Math.PI / 4)) + (xComponent * Math.sin(Math.PI / 4));
+        //get rotation angle in rads
+        //get needed rotation
+        //get rotation between -360 and 360 degrees
+        //get the number of encoder counts for the target rotation
+        //setup target positions for each wheel
+        double flPower = -rotatedY;
+        double brPower = rotatedY;
+        double frPower = -rotatedX;
+        double blPower = rotatedX;
+        //set target positions
+        frontLeft.setTargetPosition((int) flPower);
+        backRight.setTargetPosition((int) brPower);
+        frontRight.setTargetPosition((int) frPower);
+        backLeft.setTargetPosition((int) blPower);
+        //prep motors
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //make powers less than 1
+        double proportion = Math.max(Math.max(Math.abs(flPower), Math.abs(brPower)), Math.max(Math.abs(frPower), Math.abs(blPower)));
+        //set the powers
+        frontLeft.setPower(power * flPower / proportion);
+        frontRight.setPower(power * frPower / proportion);
+        backLeft.setPower(power * blPower / proportion);
+        backRight.setPower(power * brPower / proportion);
+        while(getSensor(sensor).getDistance(DistanceUnit.CM) > distance){}
+        stopDrive();
+    }
+    private DistanceSensor getSensor(int sensor){
+        return sensor == 0?distBack:sensor==1?distLeft:distRight;
     }
 }
 

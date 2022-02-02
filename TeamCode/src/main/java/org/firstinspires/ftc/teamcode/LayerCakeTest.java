@@ -51,7 +51,7 @@ public class LayerCakeTest extends LinearOpMode {
             telemetry.addData("Green Point(x): ", layerCake.getGreenPoint().x);
             telemetry.update();
         }
-        layerCake.driveByAngle(90,500,0,1,5);
+        layerCake.driveByAngleEncoder(90,500,0,1,5);
     }
 
 }
