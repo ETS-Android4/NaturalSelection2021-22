@@ -19,4 +19,6 @@ public class Constants {
     public static final double DUCK_POWER = 0.5;
     public static final int CAM_WIDTH = 640;
     public static final int CAM_HEIGHT = 480;
+    public static final int MID_THRESH = 100;
+    public static final int HIGH_THRESH = 250;
 }

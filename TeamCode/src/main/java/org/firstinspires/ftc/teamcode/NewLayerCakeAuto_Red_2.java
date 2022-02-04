@@ -28,55 +28,60 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights r
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Disabled
-@Autonomous(name = "Insta Park Red")
-public class LayerCake_V1_red_instapark extends LinearOpMode {
+
+@Autonomous(name = "Red Duck Duck Park", group = "Final")
+public class NewLayerCakeAuto_Red_2 extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
-    private String currentStep = "waiting for start";
-    double barScan = 0;
     ElapsedTime runtime = new ElapsedTime();
+    String currentStep = "Waiting for Start";
+    int slideHeight = Constants.LOW_POSITION;
+    Thread telemetryHandler = new Thread(){
+      @Override
+      public void run() {
+          while (opModeIsActive()) {
+              telemetry.addData("Current Task: ", currentStep);
+              telemetry.addData("Runtime(s): ", runtime.seconds());
+              telemetry.addData("Slide Target: ", slideHeight);
+              telemetry.update();
+          }
+      }
+    };
     @Override
     public void runOpMode() {
-        layerCake.init(hardwareMap,telemetry);
-        Thread telemetryHandler = new Thread() {
-            @Override
-            public void run() {
-                while (runtime.seconds() < 30) {
-                    telemetry.addData("Runtime(s): ", runtime.seconds());
-                    telemetry.addData("Distance Left(cm): ", layerCake.getLeftDistance());
-                    telemetry.addData("Distance Right(cm): ", layerCake.getRightDistance());
-                    telemetry.addData("Distance Back(cm): ", layerCake.getBackDistance());
-                    telemetry.addData("Bar Scan: ", barScan);
-                    telemetry.addData("Current Task: ", currentStep);
-                    telemetry.update();
-                }
-            }
-        };
-        telemetryHandler.start();
+        layerCake.init(hardwareMap, telemetry);
         layerCake.initSlides();
         waitForStart();
         runtime.reset();
-        //moves away from wall
-        sleep(50);
-
-
-        layerCake.output(false);
-        currentStep = "Parking";
+        telemetryHandler.start();
+        currentStep = "scanning code";
+        slideHeight = layerCake.getSlideHeight();
         layerCake.setSlidePosition(Constants.LOW_POSITION);
-        sleep(1000);
-        //layerCake.forwardDrive(0.5, -200, 2);
-        layerCake.strafeRight(0.5, -375, 2);
-        layerCake.stopDrive();
-        layerCake.setSlidePosition(0);
-        currentStep = "Waiting";
-        sleep(1000);
-
+        currentStep = "going to duck";
+        layerCake.driveByAngleEncoder(0,200,0,1,2);
+        layerCake.driveByAngleEncoder(90,1300,0,0.75,4);
+        layerCake.driveByAngleEncoder(0,0,-45,1,0.5);
+        currentStep = "spinning duck";
+        layerCake.spinnerPower(2*Constants.DUCK_POWER/3);
+        sleep(3000);
+        layerCake.spinnerPower(0);
+        layerCake.driveByAngleEncoder(-40,1750,-45,1,5);
+        layerCake.setSlidePosition(slideHeight);
+        layerCake.driveByAngleEncoder(-40,250,-45,0.5,5);
+        layerCake.output(true);
+        sleep(2000);
+        layerCake.output(false);
+        layerCake.driveByAngleEncoder(180,500,-90,1,4);
+        layerCake.setSlidePosition(Constants.LOW_POSITION);
+        layerCake.driveByAngleEncoder(90,2000,45,1,4);
+        layerCake.driveByAngleEncoder(0,0,0,1,4);
+        layerCake.setSlidePosition(Constants.INTAKE_POSITION);
+        sleep(500);
+        //layerCake.driveByAngleEncoder(90,500,0,1,5);
     }
 
 }

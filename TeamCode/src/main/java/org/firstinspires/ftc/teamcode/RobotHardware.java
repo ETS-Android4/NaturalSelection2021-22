@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -58,6 +59,7 @@ public class RobotHardware {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
+    private Servo boxDoor = null;
     private BNO055IMU imu = null;
     private OpenCvWebcam webcam;
     private ShippingElementPipeline pipeline;
@@ -88,7 +90,7 @@ public class RobotHardware {
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
-        spin.setDirection(DcMotorSimple.Direction.FORWARD);
+        spin.setDirection(DcMotorSimple.Direction.REVERSE);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         //set zero power behaviors for each motor
@@ -123,11 +125,13 @@ public class RobotHardware {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
         //define and initialize sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
-
+        boxDoor = hardwareMap.get(Servo.class, "boxDoor");
+        boxDoor.setPosition(Constants.BOX_CLOSED);
         //define and initialize imu
         imu = hardwareMap.get(BNO055IMU.class, "imu 1");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -149,7 +153,7 @@ public class RobotHardware {
             @Override
             public void onOpened() {
                 webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
-                telemetry.addData("Camera status:", "initialized");
+                //telemetry.addData("Camera status:", "initialized");
                 telemetry.update();
             }
 
@@ -158,7 +162,12 @@ public class RobotHardware {
                 // This will be called if the camera could not be opened
             }
         });
-
+        while(pipeline.getPoint() == null){
+            telemetry.addData("camera ready?", "false");
+            telemetry.update();
+        }
+        telemetry.addData("camera ready?", "true");
+        telemetry.update();
     }
 
     public void spinnerPower(double power) {
@@ -169,9 +178,17 @@ public class RobotHardware {
         return pipeline.getPoint();
     }
 
+    public int getSlideHeight(){
+        if (getGreenPoint() == null) return Constants.HIGH_POSITION;
+        double center = getGreenPoint().x;
+        if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
+        if(center<Constants.HIGH_THRESH)return Constants.MID_POSITION;
+        return Constants.HIGH_POSITION;
+    }
+
     public void initSlides() {
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slides.setTargetPosition(0);
+        slides.setTargetPosition(Constants.INTAKE_POSITION);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
     }
@@ -245,10 +262,16 @@ public class RobotHardware {
 
     public void output(boolean on) {
         if (on) {
+            boxDoor.setPosition(Constants.BOX_OPEN);
             intake.setPower(Constants.OUTPUT_POWER);
         } else {
             intake.setPower(0);
+            boxDoor.setPosition(Constants.BOX_CLOSED);
         }
+    }
+
+    public void intake(boolean on){
+        intake.setPower(on?Constants.INTAKE_POWER:0);
     }
 
     @Deprecated
@@ -365,8 +388,8 @@ public class RobotHardware {
         double xComponent = Math.cos(newAngle);
         double yComponent = Math.sin(newAngle);
         //rotate vector 45 degrees
-        double rotatedX = (xComponent * Math.cos(Math.PI / 4)) - (yComponent * Math.sin(Math.PI / 4));
-        double rotatedY = (yComponent * Math.cos(Math.PI / 4)) + (xComponent * Math.sin(Math.PI / 4));
+        double rotatedX = (xComponent * Math.cos(Math.PI / 4-startAngle)) - (yComponent * Math.sin(Math.PI / 4-startAngle));
+        double rotatedY = (yComponent * Math.cos(Math.PI / 4-startAngle)) + (xComponent * Math.sin(Math.PI / 4-startAngle));
         //get rotation angle in rads
         double targetRotationRad = Math.toRadians(targetRotation);
         //get needed rotation

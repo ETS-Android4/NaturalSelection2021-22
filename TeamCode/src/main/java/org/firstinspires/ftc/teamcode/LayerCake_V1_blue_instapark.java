@@ -32,7 +32,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Disabled
 @Autonomous(name = "Insta Park Blue")
 public class LayerCake_V1_blue_instapark extends LinearOpMode {
 
@@ -63,14 +62,11 @@ public class LayerCake_V1_blue_instapark extends LinearOpMode {
         waitForStart();
         runtime.reset();
         //moves away from wall
-        sleep(50);
-
-        sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
         layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.forwardDrive(0.5, -200, 2);
-        layerCake.strafeRight(0.5, 375, 2);
+        sleep(1000);
+        layerCake.strafeRight(0.5, 1000, 2);
         layerCake.stopDrive();
         layerCake.setSlidePosition(0);
         currentStep = "Waiting";

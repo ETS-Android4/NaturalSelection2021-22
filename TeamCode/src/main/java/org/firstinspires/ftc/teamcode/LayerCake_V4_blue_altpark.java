@@ -32,7 +32,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Disabled
 @Autonomous(name = "Full Alt Auto Blue")
 public class LayerCake_V4_blue_altpark extends LinearOpMode {
 
@@ -64,7 +63,7 @@ public class LayerCake_V4_blue_altpark extends LinearOpMode {
         runtime.reset();
         //moves away from wall
         sleep(50);
-        layerCake.forwardDrive(0.2,250,2);
+        layerCake.forwardDrive(0.2,200,2);
         layerCake.strafeRight(0.2);
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         //moves towards spinner
@@ -100,9 +99,10 @@ public class LayerCake_V4_blue_altpark extends LinearOpMode {
         sleep(1000);
         layerCake.output(false);
         currentStep = "Parking";
-       layerCake.forwardDrive(0.5, -1200, 4);
+       layerCake.forwardDrive(0.5, -1400, 4);
         layerCake.setSlidePosition(0);
         layerCake.strafeRight(0.5, -400, 2);
+        layerCake.driveByAngleEncoder(0,0,0,1,0.5);
         layerCake.stopDrive();
         currentStep = "Waiting";
 
