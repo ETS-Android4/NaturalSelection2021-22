@@ -34,7 +34,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.RobotHardware;
-
+@Disabled
 @Autonomous(name = "Layer Cake V2 blue")
 public class LayerCake_V2_blue extends LinearOpMode {
 
