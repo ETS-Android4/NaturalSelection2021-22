@@ -63,15 +63,17 @@ public class NewLayerCakeAuto_Blue_2 extends LinearOpMode {
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         currentStep = "going to duck";
         layerCake.driveByAngleEncoder(0,200,0,1,2);
-        layerCake.driveByAngleEncoder(-90,1300,0,0.75,4);
+        layerCake.driveByAngleEncoder(-90,700,0,0.75,4);
+        layerCake.driveByAngleEncoder(-90,1000,0,0.75,4);
         layerCake.driveByAngleEncoder(0,0,45,1,0.5);
+        layerCake.driveByAngleEncoder(-135,300,45,1,0.5);
         currentStep = "spinning duck";
         layerCake.spinnerPower(-2*Constants.DUCK_POWER/3);
         sleep(3000);
         layerCake.spinnerPower(0);
-        layerCake.driveByAngleEncoder(40,1750,45,1,5);
+        layerCake.driveByAngleEncoder(50,1750,45,1,5);
         layerCake.setSlidePosition(slideHeight);
-        layerCake.driveByAngleEncoder(40,250,45,0.5,5);
+        layerCake.driveByAngleEncoder(50,500,45,0.5,5);
         layerCake.output(true);
         sleep(2000);
         layerCake.output(false);
@@ -79,6 +81,7 @@ public class NewLayerCakeAuto_Blue_2 extends LinearOpMode {
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         layerCake.driveByAngleEncoder(-90,2000,45,1,4);
         layerCake.driveByAngleEncoder(0,0,0,1,4);
+        //layerCake.driveByAngleEncoder(0,500,0,1,4);
         layerCake.setSlidePosition(Constants.INTAKE_POSITION);
         sleep(500);
         //layerCake.driveByAngleEncoder(90,500,0,1,5);
