@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 public class Constants {
     public static final int  INTAKE_POSITION = 50;
     public static final int  LOW_POSITION = 500;
+    public static final int SHARED_POSITION = 1000;
     public static final int MID_POSITION = 1500;
     public static final int HIGH_POSITION = 2100;
     public static final int SLIDE_MAX = 2200;
@@ -21,4 +22,5 @@ public class Constants {
     public static final int CAM_HEIGHT = 480;
     public static final int MID_THRESH = 100;
     public static final int HIGH_THRESH = 250;
+    public static final double TOLERANCE = Math.PI/32;
 }

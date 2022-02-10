@@ -66,10 +66,10 @@ public class NewLayerCakeAuto_Blue_2 extends LinearOpMode {
         layerCake.driveByAngleEncoder(-90,700,0,0.75,4);
         layerCake.driveByAngleEncoder(-90,1000,0,0.75,4);
         layerCake.driveByAngleEncoder(0,0,45,1,0.5);
-        layerCake.driveByAngleEncoder(-135,300,45,1,0.5);
+        layerCake.driveByAngleEncoder(-135,300,45,.1,0.5);
         currentStep = "spinning duck";
         layerCake.spinnerPower(-2*Constants.DUCK_POWER/3);
-        sleep(3000);
+        sleep(5000);
         layerCake.spinnerPower(0);
         layerCake.driveByAngleEncoder(50,1750,45,1,5);
         layerCake.setSlidePosition(slideHeight);

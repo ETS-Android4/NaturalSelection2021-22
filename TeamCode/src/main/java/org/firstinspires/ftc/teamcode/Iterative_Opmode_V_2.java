@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.PI;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -40,6 +42,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
@@ -170,15 +173,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public void loop() {
         //Get the positions of the left stick in terms of x and y
         //Invert y because of the input from the controller
-        double stickX = gamepad1.left_stick_x;
-        double stickY = -gamepad1.left_stick_y;
+        double stickX = Math.abs(gamepad1.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad1.left_stick_x;
+        double stickY = Math.abs(gamepad1.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.left_stick_y;
         //get the direction from the IMU
-        double angle =  imu.getAngularOrientation().firstAngle;
+        double angle = imu.getAngularOrientation().firstAngle;
         //rotate the positions to prep for wheel powers
-        double rotatedX = (stickX * Math.cos(Math.PI / 4 - angle)) - (stickY * Math.sin(Math.PI / 4 - angle));
-        double rotatedY = (stickY * Math.cos(Math.PI / 4 - angle)) + (stickX * Math.sin(Math.PI / 4 - angle));
+        double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4 - angle));
+        double rotatedY = (stickY * Math.cos(PI / 4 - angle)) + (stickX * Math.sin(PI / 4 - angle));
         //determine how much the robot should turn
-        double rotation = gamepad1.left_trigger - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
+        double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
         //test if the robot should move
         boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
         boolean areSticksMoved = Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH;
@@ -201,14 +204,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //duck spinner
         if (gamepad2.a) {
             spin.setPower(Constants.DUCK_POWER);
-        } else if(gamepad2.b){
+        } else if (gamepad2.b) {
             spin.setPower(-Constants.DUCK_POWER);
-        }else{
+        } else {
             spin.setPower(0);
         }
         //slides
         if (gamepad2.dpad_up) {
-            slidesTarget = Constants.HIGH_POSITION+50;
+            slidesTarget = Constants.HIGH_POSITION + 50;
             boxDoor.setPosition(Constants.BOX_CLOSED);
         } else if (gamepad2.dpad_right) {
             slidesTarget = Constants.MID_POSITION;
@@ -219,6 +222,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
         } else if (gamepad2.dpad_down) {
             slidesTarget = Constants.INTAKE_POSITION;
             boxDoor.setPosition(Constants.BOX_CLOSED);
+        } else if (gamepad2.triangle) {
+            slidesTarget = Constants.SHARED_POSITION;
+            boxDoor.setPosition(Constants.BOX_CLOSED);
         }
         //manual adjustments to slide positions
         slidesTarget += -gamepad2.right_stick_y * 25;
@@ -226,25 +232,28 @@ public class Iterative_Opmode_V_2 extends OpMode {
         slides.setTargetPosition(slidesTarget);
         slides.setPower(Constants.SLIDE_POWER);
         //reset the zero position of the slides
-        if(gamepad2.x){
+        if (gamepad2.x) {
             slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
         //intake and output
-        if(gamepad2.right_bumper && slides.getCurrentPosition()>=Constants.LOW_POSITION - 100){
+        if (gamepad2.right_bumper && slides.getCurrentPosition() >= Constants.LOW_POSITION - 100) {
             boxDoor.setPosition(Constants.BOX_OPEN);
             intake.setPower(Constants.OUTPUT_POWER);
-        }else if (gamepad2.left_bumper){
+        } else if (gamepad2.left_bumper) {
             intake.setPower(Constants.INTAKE_POWER);
-        }else if(gamepad1.right_bumper){
+        } else if (gamepad1.right_bumper) {
             boxDoor.setPosition(Constants.BOX_OPEN);
             intake.setPower(Constants.OUTPUT_POWER);
-        }else if(gamepad1.left_bumper){
+        } else if (gamepad1.left_bumper) {
             intake.setPower(Constants.INTAKE_POWER);
         } else {
             intake.setPower(0);
             boxDoor.setPosition(Constants.BOX_CLOSED);
+        }
+        if (gamepad1.triangle) {
+            rotateToZero(0);
         }
         //telemetry
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
@@ -253,6 +262,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
         telemetry.addData("FL: ", frontLeft.getCurrentPosition());
         telemetry.addData("Angle: ", imu.getAngularOrientation().firstAngle);
+        telemetry.addData("RIGHT TRIGGER: ", gamepad1.right_trigger);
     }
 
     private void stopDrive() {
@@ -261,10 +271,47 @@ public class Iterative_Opmode_V_2 extends OpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
     }
+
+    private void rotateToZero(double angle) {
+        //use a PID control loop to
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double k_p = .1;
+        double k_i = 0;
+        double k_d = 0;
+        double current_error = imu.getAngularOrientation().firstAngle - angle;
+        double previous_error = current_error;
+        double previous_time = 0;
+        double current_time = 0;
+        double max_i = 0.1;
+        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
+            current_time = runtime.milliseconds();
+            current_error = imu.getAngularOrientation().firstAngle - angle;
+            double p = k_p * current_error;
+            double i = k_i * (current_error * (current_time - previous_time));
+            i = Range.clip(i, -max_i, max_i);
+            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
+            double power = p + i + d;
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
+
+            previous_error = current_error;
+            previous_time = current_time;
+
+            telemetry.addData("status:", "zeroing direction");
+            telemetry.addData("time(ms):", timer.milliseconds());
+        }
+
+        stopDrive();
+    }
+
     /*
      * Code to run ONCE after the driver hits STOP
      */
     @Override
-    public void stop(){}
+    public void stop() {
+    }
 
 }
