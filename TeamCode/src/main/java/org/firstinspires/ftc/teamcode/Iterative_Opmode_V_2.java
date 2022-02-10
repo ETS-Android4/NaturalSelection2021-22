@@ -276,9 +276,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //use a PID control loop to
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        double k_p = .1;
+        double k_p = Math.PI/6;
         double k_i = 0;
-        double k_d = 0;
+        double k_d = 2;
         double current_error = imu.getAngularOrientation().firstAngle - angle;
         double previous_error = current_error;
         double previous_time = 0;
@@ -286,7 +286,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         double max_i = 0.1;
         while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
             current_time = runtime.milliseconds();
-            current_error = imu.getAngularOrientation().firstAngle - angle;
+            current_error = angle - imu.getAngularOrientation().firstAngle;
             double p = k_p * current_error;
             double i = k_i * (current_error * (current_time - previous_time));
             i = Range.clip(i, -max_i, max_i);
