@@ -14,8 +14,8 @@ public class Constants {
     public static final double INTAKE_POWER = -1;
     public static final double OUTPUT_POWER = 0.25;
     public static final double SLIDE_POWER = 1;
-    public static final double BOX_CLOSED = 0.965;
-    public static final double BOX_OPEN = 0.885;
+    public static final double BOX_CLOSED = 0.830;
+    public static final double BOX_OPEN = 0.735;
     public static final double ROTATION_SENSITIVITY = 0.5;
     public static final double DUCK_POWER = 0.5;
     public static final int CAM_WIDTH = 640;

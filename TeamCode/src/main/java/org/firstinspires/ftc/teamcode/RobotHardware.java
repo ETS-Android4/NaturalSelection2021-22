@@ -30,12 +30,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -369,6 +371,55 @@ public class RobotHardware {
 
     public double getAngle(){
         return imu.getAngularOrientation().firstAngle;
+    }
+
+    public DistanceSensor getDistLeft() {
+        return distLeft;
+    }
+
+    public DistanceSensor getDistRight() {
+        return distRight;
+    }
+
+    public DistanceSensor getDistBack() {
+        return distBack;
+    }
+
+    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout, OpMode opMode){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double newAngle = Math.toRadians(angle + 90);
+        double startAngle = imu.getAngularOrientation().firstAngle;
+        double rotatedX = (Math.cos(newAngle) * Math.cos(Math.PI / 4-startAngle)) - (Math.sin(newAngle) * Math.sin(Math.PI / 4-startAngle));
+        double rotatedY = (Math.sin(newAngle) * Math.cos(Math.PI / 4-startAngle)) + (Math.cos(newAngle) * Math.sin(Math.PI / 4-startAngle));
+        double proportion = Math.max(Math.abs(rotatedX), Math.abs(rotatedY));
+        double flPower = -rotatedY * proportion;
+        double brPower = rotatedY * proportion;
+        double frPower = -rotatedX * proportion;
+        double blPower = rotatedX * proportion;
+        double k_p = 2;
+        double k_i = 0;
+        double k_d = 0;
+        double current_error = imu.getAngularOrientation().firstAngle - angle;
+        double previous_error = current_error;
+        double previous_time = 0;
+        double current_time = 0;
+        double max_i = 0.1;
+        while(sensor.getDistance(DistanceUnit.CM) > toDistance && timer.seconds()<timeout){
+            current_time = timer.milliseconds();
+            current_error = toDistance - sensor.getDistance(DistanceUnit.CM);
+            double p = k_p * current_error;
+            double i = k_i * (current_error * (current_time - previous_time));
+            i = Range.clip(i, -max_i, max_i);
+            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
+            double power = p + i + d;
+            frontLeft.setPower(power*flPower);
+            frontRight.setPower(power*frPower);
+            backLeft.setPower(power*blPower);
+            backRight.setPower(power*brPower);
+            previous_error = current_error;
+            previous_time = current_time;
+        }
     }
 
     public void driveByAngleEncoder(double angle, double distance, double targetRotation, double power, double timeout) {

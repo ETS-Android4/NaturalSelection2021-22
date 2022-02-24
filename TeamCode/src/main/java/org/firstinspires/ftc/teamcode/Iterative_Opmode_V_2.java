@@ -302,6 +302,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
             telemetry.addData("status:", "zeroing direction");
             telemetry.addData("time(ms):", timer.milliseconds());
+            telemetry.update();
         }
 
         stopDrive();

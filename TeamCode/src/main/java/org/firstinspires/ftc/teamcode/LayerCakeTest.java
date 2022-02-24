@@ -32,7 +32,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Disabled
+
 @Autonomous(name = "LayerTest")
 public class LayerCakeTest extends LinearOpMode {
 
@@ -52,7 +52,7 @@ public class LayerCakeTest extends LinearOpMode {
             telemetry.addData("Green Point(x): ", layerCake.getGreenPoint().x);
             telemetry.update();
         }
-        layerCake.driveByAngleEncoder(90,500,0,1,5);
+        layerCake.driveByAngleSensor(90, layerCake.getDistLeft(), 10,5, telemetry);
     }
 
 }
