@@ -261,6 +261,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
         telemetry.addData("FL: ", frontLeft.getCurrentPosition());
+        telemetry.addData("FR: ", frontRight.getCurrentPosition());
+        telemetry.addData("BL: ", backLeft.getCurrentPosition());
+        telemetry.addData("BR: ", backRight.getCurrentPosition());
         telemetry.addData("Angle: ", imu.getAngularOrientation().firstAngle);
         telemetry.addData("RIGHT TRIGGER: ", gamepad1.right_trigger);
     }
@@ -276,7 +279,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //use a PID control loop to
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        double k_p = Math.PI/6;
+        double k_p = Math.PI/8;
         double k_i = 0;
         double k_d = 2;
         double current_error = imu.getAngularOrientation().firstAngle - angle;
@@ -284,6 +287,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         double previous_time = 0;
         double current_time = 0;
         double max_i = 0.1;
+        //while(timer.seconds() < 5){
         while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
             current_time = runtime.milliseconds();
             current_error = angle - imu.getAngularOrientation().firstAngle;

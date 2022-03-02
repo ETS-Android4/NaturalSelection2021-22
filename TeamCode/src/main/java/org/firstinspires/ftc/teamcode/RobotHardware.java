@@ -385,7 +385,7 @@ public class RobotHardware {
         return distBack;
     }
 
-    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout, OpMode opMode){
+    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout){
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         double newAngle = Math.toRadians(angle + 90);
