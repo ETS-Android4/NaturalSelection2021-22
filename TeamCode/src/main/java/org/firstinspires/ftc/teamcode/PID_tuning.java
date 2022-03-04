@@ -28,13 +28,12 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights r
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "LayerTest")
-public class LayerCakeTest extends LinearOpMode {
+@Autonomous(name = "_PID_TEST")
+public class PID_tuning extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -47,17 +46,7 @@ public class LayerCakeTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
         runtime.reset();
-//        while(runtime.seconds() < 30 && opModeIsActive()){
-//            telemetry.addData("Runtime(s): ", runtime.seconds());
-//            telemetry.addData("Green Point(x): ", layerCake.getGreenPoint().x);
-//            telemetry.addData("Status: ", "Running");
-//            telemetry.update();
-//        }
-
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 30,5,telemetry,1);
         layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 15,5,telemetry,2);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 25,.3,telemetry,3);
-        layerCake.spinnerPower(-Constants.DUCK_POWER);
     }
 
 }

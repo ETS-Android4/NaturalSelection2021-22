@@ -51,7 +51,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 public class RobotHardware {
     /* Public OpMode members. */
-    private DcMotor frontLeft = null;
+    public DcMotor frontLeft = null;
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
@@ -385,40 +385,53 @@ public class RobotHardware {
         return distBack;
     }
 
-    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout){
+    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout,Telemetry telemetry,int pathNum){
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         double newAngle = Math.toRadians(angle + 90);
-        double startAngle = imu.getAngularOrientation().firstAngle;
-        double rotatedX = (Math.cos(newAngle) * Math.cos(Math.PI / 4-startAngle)) - (Math.sin(newAngle) * Math.sin(Math.PI / 4-startAngle));
-        double rotatedY = (Math.sin(newAngle) * Math.cos(Math.PI / 4-startAngle)) + (Math.cos(newAngle) * Math.sin(Math.PI / 4-startAngle));
-        double proportion = Math.max(Math.abs(rotatedX), Math.abs(rotatedY));
-        double flPower = -rotatedY * proportion;
-        double brPower = rotatedY * proportion;
-        double frPower = -rotatedX * proportion;
-        double blPower = rotatedX * proportion;
-        double k_p = 2;
-        double k_i = 0;
-        double k_d = 0;
-        double current_error = imu.getAngularOrientation().firstAngle - angle;
+        double k_p = 0.01;
+        double k_i = 1;
+        double k_d = 1;
+        double current_error = sensor.getDistance(DistanceUnit.CM) - toDistance;
         double previous_error = current_error;
         double previous_time = 0;
-        double current_time = 0;
+        double current_time;
         double max_i = 0.1;
+        double initialAngle = imu.getAngularOrientation().firstAngle;
         while(sensor.getDistance(DistanceUnit.CM) > toDistance && timer.seconds()<timeout){
             current_time = timer.milliseconds();
-            current_error = toDistance - sensor.getDistance(DistanceUnit.CM);
+            current_error = sensor.getDistance(DistanceUnit.CM)- toDistance;
             double p = k_p * current_error;
             double i = k_i * (current_error * (current_time - previous_time));
             i = Range.clip(i, -max_i, max_i);
             double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
             double power = p + i + d;
+            double startAngle = imu.getAngularOrientation().firstAngle;
+            double rotatedX = (Math.cos(newAngle) * Math.cos(Math.PI / 4-startAngle)) - (Math.sin(newAngle) * Math.sin(Math.PI / 4-startAngle));
+            double rotatedY = (Math.sin(newAngle) * Math.cos(Math.PI / 4-startAngle)) + (Math.cos(newAngle) * Math.sin(Math.PI / 4-startAngle));
+            double angleError = initialAngle - startAngle;
+            double rotation = angleError/(2*Math.PI);
+            double flPower = -rotatedY + rotation;
+            double brPower = rotatedY + rotation;
+            double frPower = -rotatedX + rotation;
+            double blPower = rotatedX + rotation;
+            double proportion = Math.max(Math.max(Math.abs(flPower), Math.abs(frPower)),Math.max(Math.abs(brPower), Math.abs(blPower)));
+            flPower *= proportion;
+            frPower *= proportion;
+            brPower *= proportion;
+            blPower *= proportion;
             frontLeft.setPower(power*flPower);
             frontRight.setPower(power*frPower);
             backLeft.setPower(power*blPower);
             backRight.setPower(power*brPower);
             previous_error = current_error;
             previous_time = current_time;
+            telemetry.addData("angle error",angleError);
+            telemetry.addData("angle correction",rotation);
+            telemetry.addData("dist",sensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("error",current_error);
+            telemetry.addData("pathnum",pathNum);
+            telemetry.update();
         }
     }
 
