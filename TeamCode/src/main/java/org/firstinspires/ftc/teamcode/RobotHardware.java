@@ -392,16 +392,17 @@ public class RobotHardware {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         double newAngle = Math.toRadians(angle + 90);
-        double k_p = 0.01;
-        double k_i = 1;
-        double k_d = 1;
+
         double current_error = sensor.getDistance(DistanceUnit.CM) - toDistance;
         double previous_error = current_error;
         double previous_time = 0;
         double current_time;
         double max_i = 0.1;
         double initialAngle = imu.getAngularOrientation().firstAngle;
-        while(Math.abs(sensor.getDistance(DistanceUnit.CM)-toDistance) > 0.2 && timer.seconds()<timeout){
+        double k_p = 0.01;
+        double k_i = 1;
+        double k_d = 1;
+        while(Math.abs(sensor.getDistance(DistanceUnit.CM)-toDistance) > 0.5 && timer.seconds()<timeout){
             current_time = timer.milliseconds();
             current_error = sensor.getDistance(DistanceUnit.CM)- toDistance;
             double p = k_p * current_error;
@@ -438,22 +439,21 @@ public class RobotHardware {
         stopDrive();
         telemetry.update();
     }
-    public void zeroAngle() {
-        //use a PID control loop to
+    public void angle(double angle) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        double k_p = Math.PI/12;
+        double k_p = Math.PI/8;
         double k_i = 0;
         double k_d = 2;
-        double current_error = imu.getAngularOrientation().firstAngle - 0;
+        double current_error = imu.getAngularOrientation().firstAngle - angle;
         double previous_error = current_error;
         double previous_time = 0;
         double current_time = 0;
         double max_i = 0.1;
         //while(timer.seconds() < 5){
-        while (Math.abs(current_error) > Constants.TOLERANCE) {
+        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
             current_time = timer.milliseconds();
-            current_error = 0 - imu.getAngularOrientation().firstAngle;
+            current_error = angle - imu.getAngularOrientation().firstAngle;
             double p = k_p * current_error;
             double i = k_i * (current_error * (current_time - previous_time));
             i = Range.clip(i, -max_i, max_i);
@@ -463,10 +463,8 @@ public class RobotHardware {
             frontRight.setPower(power);
             backLeft.setPower(power);
             backRight.setPower(power);
-
             previous_error = current_error;
             previous_time = current_time;
-
             telemetry.addData("status:", "zeroing direction");
             telemetry.addData("time(ms):", timer.milliseconds());
             telemetry.update();
