@@ -54,10 +54,17 @@ public class LayerCakeTest extends LinearOpMode {
 //            telemetry.update();
 //        }
 
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 30,5,telemetry,1);
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 15,5,telemetry,2);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 25,.3,telemetry,3);
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 30,5);
+        sleep(1000);
+        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 5,5);
+        sleep(1000);
+        layerCake.zeroAngle();
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 29,.3);
+        sleep(1000);
         layerCake.spinnerPower(-Constants.DUCK_POWER);
+        sleep(2000);
+        layerCake.spinnerPower(0);
+        layerCake.driveByAngleSensor(33.8, layerCake.getDistBack(), 90,5);
     }
 
 }

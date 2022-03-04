@@ -55,7 +55,7 @@ public class NewLayerCakeAuto_Red extends LinearOpMode {
     public void runOpMode() {
         layerCake.init(hardwareMap, telemetry);
         layerCake.initSlides();
-        telemetry.addData("Green Point: ", layerCake.getGreenPoint());
+        telemetry.addData("Green Point: ", layerCake.getElementPosition());
         telemetry.update();
         waitForStart();
         runtime.reset();

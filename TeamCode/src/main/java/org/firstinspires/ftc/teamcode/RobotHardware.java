@@ -30,7 +30,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -64,9 +63,11 @@ public class RobotHardware {
     private Servo boxDoor = null;
     private BNO055IMU imu = null;
     private OpenCvWebcam webcam;
+    private Point elementPosition;
     private ShippingElementPipeline pipeline;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
+    Telemetry telemetry;
 
 
     /* Constructor */
@@ -78,6 +79,7 @@ public class RobotHardware {
     public void init(HardwareMap ahwMap,Telemetry telemetry) {
         // Save reference to Hardware map
         hardwareMap = ahwMap;
+        this.telemetry = telemetry;
 
         // Define and initialize motors
         frontLeft = hardwareMap.get(DcMotor.class, "fl");
@@ -168,6 +170,7 @@ public class RobotHardware {
             telemetry.addData("camera ready?", "false");
             telemetry.update();
         }
+        elementPosition = pipeline.getPoint();
         telemetry.addData("camera ready?", "true");
         telemetry.update();
     }
@@ -176,13 +179,13 @@ public class RobotHardware {
         spin.setPower(power);
     }
 
-    public Point getGreenPoint() {
-        return pipeline.getPoint();
+    public Point getElementPosition() {
+        return elementPosition;
     }
 
     public int getSlideHeight(){
-        if (getGreenPoint() == null) return Constants.HIGH_POSITION;
-        double center = getGreenPoint().x;
+        if (getElementPosition() == null) return Constants.HIGH_POSITION;
+        double center = getElementPosition().x;
         if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
         if(center<Constants.HIGH_THRESH)return Constants.MID_POSITION;
         return Constants.HIGH_POSITION;
@@ -385,7 +388,7 @@ public class RobotHardware {
         return distBack;
     }
 
-    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout,Telemetry telemetry,int pathNum){
+    public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout){
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         double newAngle = Math.toRadians(angle + 90);
@@ -398,7 +401,7 @@ public class RobotHardware {
         double current_time;
         double max_i = 0.1;
         double initialAngle = imu.getAngularOrientation().firstAngle;
-        while(sensor.getDistance(DistanceUnit.CM) > toDistance && timer.seconds()<timeout){
+        while(Math.abs(sensor.getDistance(DistanceUnit.CM)-toDistance) > 0.2 && timer.seconds()<timeout){
             current_time = timer.milliseconds();
             current_error = sensor.getDistance(DistanceUnit.CM)- toDistance;
             double p = k_p * current_error;
@@ -430,11 +433,47 @@ public class RobotHardware {
             telemetry.addData("angle correction",rotation);
             telemetry.addData("dist",sensor.getDistance(DistanceUnit.CM));
             telemetry.addData("error",current_error);
-            telemetry.addData("pathnum",pathNum);
             telemetry.update();
         }
+        stopDrive();
+        telemetry.update();
     }
+    public void zeroAngle() {
+        //use a PID control loop to
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double k_p = Math.PI/12;
+        double k_i = 0;
+        double k_d = 2;
+        double current_error = imu.getAngularOrientation().firstAngle - 0;
+        double previous_error = current_error;
+        double previous_time = 0;
+        double current_time = 0;
+        double max_i = 0.1;
+        //while(timer.seconds() < 5){
+        while (Math.abs(current_error) > Constants.TOLERANCE) {
+            current_time = timer.milliseconds();
+            current_error = 0 - imu.getAngularOrientation().firstAngle;
+            double p = k_p * current_error;
+            double i = k_i * (current_error * (current_time - previous_time));
+            i = Range.clip(i, -max_i, max_i);
+            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
+            double power = p + i + d;
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
 
+            previous_error = current_error;
+            previous_time = current_time;
+
+            telemetry.addData("status:", "zeroing direction");
+            telemetry.addData("time(ms):", timer.milliseconds());
+            telemetry.update();
+        }
+
+        stopDrive();
+    }
     public void driveByAngleEncoder(double angle, double distance, double targetRotation, double power, double timeout) {
         //timer
         ElapsedTime timer = new ElapsedTime();

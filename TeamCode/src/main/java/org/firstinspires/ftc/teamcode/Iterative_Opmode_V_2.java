@@ -275,6 +275,10 @@ public class Iterative_Opmode_V_2 extends OpMode {
         backRight.setPower(0);
     }
 
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+
     private void rotateToZero(double angle) {
         //use a PID control loop to
         ElapsedTime timer = new ElapsedTime();
@@ -311,10 +315,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
         stopDrive();
     }
-
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
     @Override
     public void stop() {
     }

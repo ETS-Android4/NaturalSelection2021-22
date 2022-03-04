@@ -47,7 +47,7 @@ public class NewLayerCakeAuto_Red_2 extends LinearOpMode {
               telemetry.addData("Current Task: ", currentStep);
               telemetry.addData("Runtime(s): ", runtime.seconds());
               telemetry.addData("Slide Target: ", slideHeight);
-              telemetry.addData("Green Point: ", layerCake.getGreenPoint());
+              telemetry.addData("Green Point: ", layerCake.getElementPosition());
               telemetry.update();
           }
       }
