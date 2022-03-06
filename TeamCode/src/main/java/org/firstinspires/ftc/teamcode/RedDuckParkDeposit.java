@@ -65,7 +65,7 @@ public class RedDuckParkDeposit extends LinearOpMode {
         layerCake.setSlidePosition(Constants.HIGH_POSITION);
         layerCake.output(true);
         sleep(1000);
-        layerCake.output(false);
+        layerCake.output(false);   
         layerCake.driveByAngleEncoder(180, 1500, -.5,.1,3);
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         layerCake.driveByAngleEncoder(-90, 1300, 0,.1,3);

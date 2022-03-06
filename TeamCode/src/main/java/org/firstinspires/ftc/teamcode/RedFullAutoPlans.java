@@ -33,8 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "BlueDuckAndPark", group = "Final")
-public class BlueDuckAndPark extends LinearOpMode {
+@Autonomous(name = "RedFull", group = "Final")
+public class RedFullAutoPlans extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -59,20 +59,32 @@ public class BlueDuckAndPark extends LinearOpMode {
         waitForStart();
         runtime.reset();
         telemetryHandler.start();
-        currentStep = "go to spin";
+        layerCake.getSlideHeight();
+        currentStep = "deposit";
+        layerCake.driveByAngleEncoder(90, 1200, 0,.1,3);
+        layerCake.driveByAngleEncoder(0, 1400, .5,.1,3);
+        layerCake.setSlidePosition(layerCake.getSlideHeight());
+        layerCake.output(true);
+        sleep(1000);
+        layerCake.output(false);
+        layerCake.driveByAngleEncoder(180, 1500, -.5,.1,3);
         layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.driveByAngleEncoder(90, 700, 0,.1,3);
-        sleep(500);
-        layerCake.spinnerPower(-Constants.DUCK_POWER);
+        layerCake.driveByAngleEncoder(-90, 1300, 0,.1,3);
+        currentStep = "go to spin";
+        layerCake.driveByAngleEncoder(-90, 700, 0,.1,3);
         sleep(2000);
+        layerCake.spinnerPower(Constants.DUCK_POWER);
+        sleep(500);
         layerCake.spinnerPower(0);
-        layerCake.driveByAngleEncoder(0, 1500, 0,.1,2);
-        layerCake.driveByAngleEncoder(90, 100, 0,.1,2);
-        layerCake.driveByAngleEncoder(0, 1000, 0,.1,2);
+        layerCake.driveByAngleEncoder(0, 1500, 0,.1,3);
+        layerCake.driveByAngleEncoder(-90, 100, 0,.1,3);
+        layerCake.driveByAngleEncoder(0, 1000, 0,.1,3);
         layerCake.angle(0);
         layerCake.setSlidePosition(0);
     }
-    }
+}
+
+
 
 
 
