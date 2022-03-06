@@ -545,5 +545,65 @@ public class RobotHardware {
         //end the path
         //stopDrive();
     }
+    public void driveByTime(double angle, double time, double targetRotation, double power, double timeout) {
+        //timer
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        //get movement direction in rads
+        double newAngle = Math.toRadians(angle + 90);
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //get start angle
+        double startAngle = imu.getAngularOrientation().firstAngle;
+        //get components of original vector
+        double xComponent = Math.cos(newAngle);
+        double yComponent = Math.sin(newAngle);
+        //rotate vector 45 degrees
+        double rotatedX = (xComponent * Math.cos(Math.PI / 4-startAngle)) - (yComponent * Math.sin(Math.PI / 4-startAngle));
+        double rotatedY = (yComponent * Math.cos(Math.PI / 4-startAngle)) + (xComponent * Math.sin(Math.PI / 4-startAngle));
+        //get rotation angle in rads
+        double targetRotationRad = Math.toRadians(targetRotation);
+        //get needed rotation
+        double rotation = targetRotationRad - startAngle;
+        //get rotation between -360 and 360 degrees
+        while (rotation > Math.PI * 2) {
+            rotation -= Math.PI * 2;
+        }
+        while (rotation < -Math.PI * 2) {
+            rotation += Math.PI * 2;
+        }
+        //make sure turn direction is correct
+        if (rotation < -Math.PI) {
+            rotation = Math.PI * 2 + rotation;
+        }
+        if (rotation > Math.PI) {
+            rotation = -Math.PI * 2 + rotation;
+        }
+        //get the number of encoder counts for the target rotation
+        double rotationInEncoderCounts = (rotation / (2 * Math.PI)) * Constants.FULL_SPIN;
+        //setup target positions for each wheel
+        double flTarget = (-rotatedY * time) + rotationInEncoderCounts;
+        double brTarget = (rotatedY * time) + rotationInEncoderCounts;
+        double frTarget = (-rotatedX * time) + rotationInEncoderCounts;
+        double blTarget = (rotatedX * time) + rotationInEncoderCounts;
+        //set target positions
+        //make powers less than 1
+        double proportion = Math.max(Math.max(Math.abs(flTarget), Math.abs(brTarget)), Math.max(Math.abs(frTarget), Math.abs(blTarget)));
+        //set the powers
+        frontLeft.setPower(power * flTarget / proportion);
+        frontRight.setPower(power * frTarget / proportion);
+        backLeft.setPower(power * blTarget / proportion);
+        backRight.setPower(power * brTarget / proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+        }
+        //end the path
+        //stopDrive();
+    }
+
 }
 

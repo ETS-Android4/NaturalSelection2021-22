@@ -33,8 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "RedParkWarehouse", group = "Final")
-public class RedPark extends LinearOpMode {
+@Autonomous(name = "RedDuckAndPark", group = "Final")
+public class RedDuckAndPark extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -59,15 +59,22 @@ public class RedPark extends LinearOpMode {
         waitForStart();
         runtime.reset();
         telemetryHandler.start();
-        currentStep = "parking";
+        currentStep = "go to spin";
         layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.driveByAngleEncoder(90, 1200, -.25,.1,12);
+        layerCake.driveByAngleEncoder(-90, 700, 0,.1,3);
         sleep(2000);
+        layerCake.spinnerPower(Constants.DUCK_POWER);
+        sleep(500);
+        layerCake.spinnerPower(0);
+        layerCake.driveByAngleEncoder(0, 1500, 0,.1,2);
+        layerCake.driveByAngleEncoder(-90, 100, 0,.1,2);
+        layerCake.driveByAngleEncoder(0, 1000, 0,.1,2);
         layerCake.angle(0);
         layerCake.setSlidePosition(0);
     }
-
 }
+
+
 
 
 
