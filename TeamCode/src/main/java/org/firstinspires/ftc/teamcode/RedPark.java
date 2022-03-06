@@ -54,6 +54,7 @@ public class RedPark extends LinearOpMode {
     };
     @Override
     public void runOpMode() {
+
         layerCake.init(hardwareMap, telemetry);
         layerCake.initSlides();
         waitForStart();
@@ -61,7 +62,7 @@ public class RedPark extends LinearOpMode {
         telemetryHandler.start();
         currentStep = "parking";
         layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.driveByAngleEncoder(90, 1200, -.25,.1,12);
+        layerCake.driveByAngleEncoder(90, 1500, 0,.2,3);
         sleep(2000);
         layerCake.angle(0);
         layerCake.setSlidePosition(0);
