@@ -62,11 +62,12 @@ public class RedDuckAndPark extends LinearOpMode {
         currentStep = "go to spin";
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         layerCake.driveByAngleEncoder(-90, 700, 0,.1,3);
-        sleep(2000);
-        layerCake.spinnerPower(Constants.DUCK_POWER);
         sleep(500);
+        layerCake.spinnerPower(-Constants.DUCK_POWER);
+        sleep(4000);
         layerCake.spinnerPower(0);
-        layerCake.driveByAngleEncoder(0, 1500, 0,.1,2);
+        layerCake.angle(0);
+        layerCake.driveByAngleEncoder(0, 1500, 0,.2,2);
         layerCake.driveByAngleEncoder(-90, 100, 0,.1,2);
         layerCake.driveByAngleEncoder(0, 1000, 0,.1,2);
         layerCake.angle(0);

@@ -28,10 +28,11 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights r
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-
+@Disabled
 @Autonomous(name = "Height Test")
 public class TEST extends LinearOpMode {
 
@@ -52,14 +53,8 @@ public class TEST extends LinearOpMode {
 //            telemetry.addData("Status: ", "Running");
 //            telemetry.update();
 //        }
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 100,5);
-        sleep(1000);
-        layerCake.driveByAngleEncoder(0,0,-45,0.2,5);
-        sleep(1000);
-        layerCake.driveByAngleEncoder(0,0,90,0.2,5);
-        sleep(1000);
-        layerCake.driveByAngleEncoder(0,0,0,0.2,5);
-        sleep(1000);
+     layerCake.spinnerPower(Constants.DUCK_POWER);
+     sleep(1000);
     }
 
 }

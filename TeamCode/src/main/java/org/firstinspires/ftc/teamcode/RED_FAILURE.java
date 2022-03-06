@@ -33,8 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Disabled
-@Autonomous(name = "RED ON THE DUCK SIDE RED RED RED")
-public class RED_SIDE_AUTO extends LinearOpMode {
+@Autonomous(name = "BARELY AN AUTO RED")
+public class RED_FAILURE extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -47,21 +47,13 @@ public class RED_SIDE_AUTO extends LinearOpMode {
         telemetry.update();
         waitForStart();
         runtime.reset();
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 125,5);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 63,5);
-        layerCake.setSlidePosition(layerCake.getSlideHeight());
-        layerCake.driveByAngleEncoder(0,100,0,0.2,1);
-        layerCake.output(true);
-        sleep(1000);
-        layerCake.output(false);
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 100,5);
-        layerCake.setSlidePosition(Constants.INTAKE_POSITION);
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 30,5);
         layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 10,5);
-        layerCake.spinnerPower(Constants.DUCK_POWER);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 29,5);
+        layerCake.spinnerPower(-Constants.DUCK_POWER);
+        //layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 29,5);
         sleep(2000);
-        layerCake.spinnerPower(0);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 90,5);
+        layerCake.angle(0);
+        layerCake.driveByAngleEncoder(0,750,0,0.2,1);
         layerCake.angle(0);
         layerCake.setSlidePosition(0);
     }

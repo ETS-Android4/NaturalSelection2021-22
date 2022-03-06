@@ -24,7 +24,7 @@ public class ShippingElementPipeline extends OpenCvPipeline {
         Imgproc.cvtColor(input,subMat,Imgproc.COLOR_RGB2HSV);
         Imgproc.GaussianBlur(subMat,subMat,new Size(5,5),0);
         Scalar lower = new Scalar(7,0,0);
-        Scalar upper = new Scalar(10,255,255);
+        Scalar upper = new Scalar(13,255,255);
         Core.inRange(subMat,lower,upper,subMat);
         Imgproc.morphologyEx(subMat,subMat,Imgproc.MORPH_OPEN,Mat.ones(new Size(3,3), CvType.CV_32F));
         contours.clear();
