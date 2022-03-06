@@ -80,10 +80,10 @@ public class cyclic_blue_novision extends LinearOpMode {
         currentStep = "begin detection";
         layerCake.setCubePipeline();
         layerCake.getGroundDistance();
-        layerCake.driveByAngleEncoder(0,layerCake.getGroundDistance() + 4, 0, .25, .25);
+        layerCake.driveByAngleEncoder(0,1210.4, 0, .25, .25);
         layerCake.intake(true);
         sleep(200);
-        layerCake.driveByAngleEncoder(180,layerCake.getGroundDistance() + 4, 0, .25, .25);
+        layerCake.driveByAngleEncoder(180,1210.4, 0, .25, .25);
         layerCake.driveByAngleEncoder(0,0, -90, .25, .25);
         layerCake.driveByAngleEncoder(-90,60.9, 0, .25, .5);
         layerCake.driveByAngleEncoder(0,45.72, 0, .25, .5);

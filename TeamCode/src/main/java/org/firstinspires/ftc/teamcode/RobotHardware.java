@@ -191,6 +191,7 @@ public class RobotHardware {
     }
 
     public int getSlideHeight(){
+        ElapsedTime timer = new ElapsedTime();
         if (getElementPosition() == null) return Constants.HIGH_POSITION;
         double center = getElementPosition().x;
         if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
