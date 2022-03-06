@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.vision.CubePipeline;
 import org.firstinspires.ftc.teamcode.vision.ShippingElementPipeline;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -64,7 +65,8 @@ public class RobotHardware {
     private BNO055IMU imu = null;
     private OpenCvWebcam webcam;
     private Point elementPosition;
-    private ShippingElementPipeline pipeline;
+    private ShippingElementPipeline shippingPipeline;
+    private CubePipeline cubePipeline;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
     Telemetry telemetry;
@@ -150,8 +152,8 @@ public class RobotHardware {
         telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        pipeline = new ShippingElementPipeline();
-        webcam.setPipeline(pipeline);
+        shippingPipeline = new ShippingElementPipeline();
+        webcam.setPipeline(shippingPipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -166,14 +168,17 @@ public class RobotHardware {
                 // This will be called if the camera could not be opened
             }
         });
-        while(pipeline.getPoint() == null){
+        while(shippingPipeline.getPoint() == null){
             telemetry.addData("camera ready?", "false");
+            telemetry.addData("pipeline chosen", "Shipping");
             telemetry.update();
         }
-        elementPosition = pipeline.getPoint();
+        elementPosition = shippingPipeline.getPoint();
         telemetry.addData("camera ready?", "true");
+        telemetry.addData("pipeline chosen", "Shipping");
         telemetry.update();
     }
+
 
     public void spinnerPower(double power) {
         spin.setPower(power);
@@ -264,6 +269,17 @@ public class RobotHardware {
     public double getBackDistance() {
         return distBack.getDistance(DistanceUnit.CM);
     }
+
+    public void setCubePipeline(){
+        webcam.setPipeline(cubePipeline);
+        telemetry.addData("Pipeline chosen", "Cube");
+        telemetry.update();
+    }
+
+    public double getGroundDistance(){
+        return cubePipeline.getGroundDistance();
+    }
+
 
     public void output(boolean on) {
         if (on) {

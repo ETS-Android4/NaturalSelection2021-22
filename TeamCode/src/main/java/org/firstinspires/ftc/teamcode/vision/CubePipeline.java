@@ -165,8 +165,7 @@ public class CubePipeline extends OpenCvPipeline {
     }
 
     double cameraHeight = 25.4;
-    public Double getGroundDistance() {
-            double groundDistance = Math.tan(Math.atan((targetCenterY - offsetCenterY) / verticalFocalLength)) * cameraHeight;
-            return groundDistance;
+    public double getGroundDistance() {
+        return Math.tan(Math.atan((targetCenterY - offsetCenterY) / verticalFocalLength)) * cameraHeight;
         }
 }
