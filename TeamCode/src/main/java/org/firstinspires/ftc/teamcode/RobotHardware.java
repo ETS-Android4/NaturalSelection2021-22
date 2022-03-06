@@ -64,6 +64,7 @@ public class RobotHardware {
     private Servo boxDoor = null;
     private BNO055IMU imu = null;
     private OpenCvWebcam webcam;
+    private boolean sensorFail = false;
     private Point elementPosition;
     private ShippingElementPipeline shippingPipeline;
     private CubePipeline cubePipeline;
@@ -191,6 +192,14 @@ public class RobotHardware {
     public int getSlideHeight(){
         if (getElementPosition() == null) return Constants.HIGH_POSITION;
         double center = getElementPosition().x;
+        if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
+        if(center<Constants.HIGH_THRESH)return Constants.MID_POSITION;
+        return Constants.HIGH_POSITION;
+    }
+
+    public int getSlideHeight2(){
+        if (getElementPosition() == null) return Constants.HIGH_POSITION;
+        double center = shippingPipeline.getPoint().x;
         if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
         if(center<Constants.HIGH_THRESH)return Constants.MID_POSITION;
         return Constants.HIGH_POSITION;
@@ -408,7 +417,6 @@ public class RobotHardware {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         double newAngle = Math.toRadians(angle + 90);
-
         double current_error = sensor.getDistance(DistanceUnit.CM) - toDistance;
         double previous_error = current_error;
         double previous_time = 0;
@@ -418,7 +426,14 @@ public class RobotHardware {
         double k_p = 0.01;
         double k_i = 1;
         double k_d = 1;
-        while(Math.abs(sensor.getDistance(DistanceUnit.CM)-toDistance) > 0.5 && timer.seconds()<timeout){
+        while(Math.abs(sensor.getDistance(DistanceUnit.CM)-toDistance) > 1 && timer.seconds()<timeout){
+            if(sensor.getDistance(DistanceUnit.CM)>800){
+                sensorFail = true;
+            }
+            if(sensorFail){
+                stopDrive();
+                return;
+            }
             current_time = timer.milliseconds();
             current_error = sensor.getDistance(DistanceUnit.CM)- toDistance;
             double p = k_p * current_error;
@@ -451,42 +466,13 @@ public class RobotHardware {
             telemetry.addData("dist",sensor.getDistance(DistanceUnit.CM));
             telemetry.addData("error",current_error);
             telemetry.update();
+
         }
         stopDrive();
         telemetry.update();
     }
     public void angle(double angle) {
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-        double k_p = Math.PI/8;
-        double k_i = 0;
-        double k_d = 2;
-        double current_error = imu.getAngularOrientation().firstAngle - angle;
-        double previous_error = current_error;
-        double previous_time = 0;
-        double current_time = 0;
-        double max_i = 0.1;
-        //while(timer.seconds() < 5){
-        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
-            current_time = timer.milliseconds();
-            current_error = angle - imu.getAngularOrientation().firstAngle;
-            double p = k_p * current_error;
-            double i = k_i * (current_error * (current_time - previous_time));
-            i = Range.clip(i, -max_i, max_i);
-            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
-            double power = p + i + d;
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
-            previous_error = current_error;
-            previous_time = current_time;
-            telemetry.addData("status:", "zeroing direction");
-            telemetry.addData("time(ms):", timer.milliseconds());
-            telemetry.update();
-        }
-
-        stopDrive();
+        driveByAngleEncoder(0,0,angle,0.2,5);
     }
     public void driveByAngleEncoder(double angle, double distance, double targetRotation, double power, double timeout) {
         //timer

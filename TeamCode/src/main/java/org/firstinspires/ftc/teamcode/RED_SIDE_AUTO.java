@@ -46,42 +46,23 @@ public class RED_SIDE_AUTO extends LinearOpMode {
         telemetry.update();
         waitForStart();
         runtime.reset();
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 30,5);
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 5,5);
-        layerCake.angle(0);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 29,4);
-        layerCake.spinnerPower(-Constants.DUCK_POWER);
-        sleep(2000);
-        layerCake.spinnerPower(0);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 100,5);
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 70,5);
-        layerCake.angle(Math.toRadians(90));
-        int slideHeight = layerCake.getSlideHeight();
-        switch (slideHeight){
-            case Constants.LOW_POSITION:
-                layerCake.driveByAngleSensor(-90, layerCake.getDistBack(), 80,5);
-                break;
-            case Constants.MID_POSITION:
-                layerCake.driveByAngleSensor(-90, layerCake.getDistBack(), 90,5);
-                break;
-            case Constants.HIGH_POSITION:
-                layerCake.driveByAngleSensor(-90, layerCake.getDistBack(), 100,5);
-            default:
-                layerCake.driveByAngleSensor(-90, layerCake.getDistBack(), 80,5);
-        }
-        layerCake.setSlidePosition(slideHeight);
+        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 125,5);
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 63,5);
+        layerCake.setSlidePosition(layerCake.getSlideHeight());
+        layerCake.driveByAngleEncoder(0,100,0,0.2,1);
         layerCake.output(true);
         sleep(1000);
         layerCake.output(false);
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 60,5);
+        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 100,5);
         layerCake.setSlidePosition(Constants.INTAKE_POSITION);
-        sleep(1000);
+        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 10,5);
+        layerCake.spinnerPower(Constants.DUCK_POWER);
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 29,5);
+        sleep(2000);
+        layerCake.spinnerPower(0);
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 90,5);
         layerCake.angle(0);
-        layerCake.driveByAngleSensor(-90, layerCake.getDistRight(), 5,5);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 50,5);
         layerCake.setSlidePosition(0);
-
-
     }
 
 }

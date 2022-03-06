@@ -8,7 +8,7 @@ public class Constants {
     public static final int HIGH_POSITION = 2100;
     public static final int SLIDE_MAX = 3000;
     public static final double STICK_THRESH = 0.2;
-    public static final int FULL_SPIN = 2000;
+    public static final int FULL_SPIN = 1250;
     public static final int BAR_1_MAX = 12;
     public static final int BAR_2_MAX = 35;
     public static final double INTAKE_POWER = -1;

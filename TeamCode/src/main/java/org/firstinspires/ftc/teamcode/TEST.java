@@ -28,13 +28,12 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights r
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "BLUE ON THE DUCK SIDE BLUE BLUE BLUE ")
-public class BLUE_SIDE_AUTO extends LinearOpMode {
+@Autonomous(name = "Height Test")
+public class TEST extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -47,26 +46,20 @@ public class BLUE_SIDE_AUTO extends LinearOpMode {
         telemetry.update();
         waitForStart();
         runtime.reset();
-
-        layerCake.driveByAngleSensor(90, layerCake.getDistLeft(), 125,5);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 63,5);
-        layerCake.setSlidePosition(layerCake.getSlideHeight());
-        layerCake.driveByAngleEncoder(0,100,0,0.2,1);
-        layerCake.output(true);
+//        while(runtime.seconds() < 30 && opModeIsActive()){
+//            telemetry.addData("Runtime(s): ", runtime.seconds());
+//            telemetry.addData("Green Point(x): ", layerCake.getGreenPoint().x);
+//            telemetry.addData("Status: ", "Running");
+//            telemetry.update();
+//        }
+        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 100,5);
         sleep(1000);
-        layerCake.output(false);
-        layerCake.driveByAngleSensor(90, layerCake.getDistLeft(), 100,5);
-        layerCake.setSlidePosition(Constants.INTAKE_POSITION);
-        layerCake.driveByAngleSensor(90, layerCake.getDistLeft(), 10,5);
-        layerCake.spinnerPower(Constants.DUCK_POWER);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 29,5);
-        sleep(2000);
-        layerCake.spinnerPower(0);
-        layerCake.driveByAngleSensor(180, layerCake.getDistBack(), 90,5);
-        layerCake.angle(0);
-        layerCake.setSlidePosition(0);
-
-
+        layerCake.driveByAngleEncoder(0,0,-45,0.2,5);
+        sleep(1000);
+        layerCake.driveByAngleEncoder(0,0,90,0.2,5);
+        sleep(1000);
+        layerCake.driveByAngleEncoder(0,0,0,0.2,5);
+        sleep(1000);
     }
 
 }

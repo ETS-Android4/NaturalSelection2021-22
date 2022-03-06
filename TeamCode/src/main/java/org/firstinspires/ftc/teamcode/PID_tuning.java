@@ -46,6 +46,8 @@ public class PID_tuning extends LinearOpMode {
         telemetry.update();
         waitForStart();
         runtime.reset();
+        layerCake.driveByAngleEncoder(0,200,0,0.3,5);
+        layerCake.angle(Math.toRadians(45));
     }
 
 }
