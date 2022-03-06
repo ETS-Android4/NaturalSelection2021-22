@@ -33,8 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "CyclicBlueV2novision", group = "Final")
-public class cyclic_blue_novision extends LinearOpMode {
+@Autonomous(name = "simple red", group = "Final")
+public class SimpleRedV1 extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware layerCake = new RobotHardware();
@@ -63,42 +63,26 @@ public class cyclic_blue_novision extends LinearOpMode {
         slideHeight = layerCake.getSlideHeight();
         layerCake.setSlidePosition(Constants.LOW_POSITION);
         currentStep = "travel to shipping hub";
-        layerCake.driveByAngleEncoder(-90,967.6, 0, .1, .5);
-        layerCake.driveByAngleEncoder(0,726.4, 0, .1, .5);
+        layerCake.driveByAngleEncoder(90,967.6, 0, .1, 1);
+        layerCake.driveByAngleEncoder(0,726.4, 0, .1, 1);
         layerCake.setSlidePosition(layerCake.getSlideHeight());
         currentStep = "deposit";
         layerCake.output(true);
-        sleep(1000);
-        layerCake.output(false);
         currentStep = "return to neutral";
         layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.driveByAngleEncoder(180,408.6, 0, .25, 1);
-        layerCake.driveByAngleEncoder(0,0, 90, .25, .5);
-        layerCake.driveByAngleEncoder(90,317, 0, .25, 1);
-        layerCake.driveByAngleEncoder(0,967.6, 0, .25, 1);
-        currentStep = "begin detection";
-        layerCake.driveByAngleEncoder(0,1210, 0, .25, .25);
-        layerCake.intake(true);
-        sleep(200);
-        layerCake.driveByAngleEncoder(180,1210, 0, .25, .25);
-        layerCake.driveByAngleEncoder(0,0, -90, .25, .25);
-        layerCake.driveByAngleEncoder(-90,967.6, 0, .25, .5);
-        layerCake.driveByAngleEncoder(0,726.4, 0, .25, .5);
-        layerCake.setSlidePosition(Constants.HIGH_POSITION);
-        layerCake.output(true);
-        sleep(1000);
-        layerCake.output(false);
-        currentStep = "end cycle 1";
-        layerCake.setSlidePosition(Constants.LOW_POSITION);
-        layerCake.driveByAngleEncoder(180,408.6, 0, .25, .5);
-        layerCake.driveByAngleEncoder(0,0, 90, .25, .25);
-        layerCake.driveByAngleEncoder(90,317, 0, .25, .5);
-        layerCake.driveByAngleEncoder(0,967.6, 0, .25, .25);
+        layerCake.driveByAngleEncoder(180,408.6, 0, .1, 1);
+        layerCake.driveByAngleEncoder(0,0, -90, .1, .5);
+        layerCake.driveByAngleEncoder(-90,317, 0, .1, 1);
+        layerCake.driveByAngleEncoder(0,967.6, 0, .1, 1);
         currentStep = "park";
-        layerCake.driveByAngleEncoder(0,967.6, 0, .25, .25);
+        layerCake.driveByAngleEncoder(0,967.6, 0, .1, .25);
         sleep(90);
+        layerCake.angle(0);
+        layerCake.setSlidePosition(0);
     }
 
 }
+
+
 
 
